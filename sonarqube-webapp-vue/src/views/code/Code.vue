@@ -106,7 +106,9 @@ import {
   type ComponentMeasure,
 } from '@/libs/commons/api/components'
 import { getBranches, type Branch } from '@/libs/commons/api/branches'
+import { searchIssues } from '@/libs/commons/api/issues'
 import { mockSources } from '@/libs/shared/mocks/mockData'
+import type { Issue } from '@/libs/commons/types/issues'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -121,7 +123,20 @@ const selectedComponent = ref<ComponentMeasure | null>(null)
 const breadcrumbs = ref<ComponentMeasure[]>([])
 const showSearchDialog = ref(false)
 const searchQuery = ref('')
-const fileIssues = ref<Array<{ line: number; key: string; severity: string }>>([])
+const fileIssues = ref<
+  Array<{
+    line: number
+    key: string
+    severity: string
+    message?: string
+    textRange?: {
+      startLine: number
+      endLine: number
+      startOffset: number
+      endOffset: number
+    }
+  }>
+>([])
 
 onMounted(() => {
   if (!projectKey.value) {
@@ -179,6 +194,22 @@ async function loadBranches() {
 async function loadComponentTree() {
   if (!projectKey.value) return
   try {
+    // 优先使用 mock 数据
+    const { mockComponentTree } = await import('@/libs/shared/mocks/mockData')
+    if (mockComponentTree[projectKey.value]) {
+      const data = mockComponentTree[projectKey.value]
+      baseComponent.value = data.baseComponent
+      components.value = data.components
+      if (route.query.component) {
+        const comp = components.value.find((c: ComponentMeasure) => c.key === route.query.component)
+        if (comp) {
+          selectComponent(comp)
+        }
+      }
+      return
+    }
+
+    // 如果没有 mock 数据，尝试从 API 获取
     const data = await getComponentTree(projectKey.value, 'children', [
       'coverage',
       'ncloc',
@@ -194,7 +225,15 @@ async function loadComponentTree() {
     }
   } catch (error: any) {
     console.error('Failed to load component tree:', error)
-    ElMessage.error(error?.message || t('codeViewer.loadTreeFailed'))
+    // 如果 API 失败，尝试使用 mock 数据
+    const { mockComponentTree } = await import('@/libs/shared/mocks/mockData')
+    if (mockComponentTree[projectKey.value]) {
+      const data = mockComponentTree[projectKey.value]
+      baseComponent.value = data.baseComponent
+      components.value = data.components
+    } else {
+      ElMessage.error(error?.message || t('codeViewer.loadTreeFailed'))
+    }
   }
 }
 
@@ -202,7 +241,7 @@ async function selectComponent(component: ComponentMeasure) {
   if (component.qualifier !== 'FIL') return
 
   selectedComponent.value = component
-  fileIssues.value = mockSources[component.key]?.issues || []
+  await loadComponentIssues(component.key)
 
   try {
     const crumbs = await getBreadcrumbs(component.key, selectedBranch.value)
@@ -214,6 +253,60 @@ async function selectComponent(component: ComponentMeasure) {
   router.replace({
     query: { ...route.query, component: component.key },
   })
+}
+
+async function loadComponentIssues(componentKey: string) {
+  try {
+    // 先尝试从 mock 数据获取
+    if (mockSources[componentKey]?.issues) {
+      fileIssues.value = mockSources[componentKey].issues.map(issue => ({
+        line: issue.line,
+        key: issue.key,
+        severity: issue.severity,
+        message: issue.message,
+        textRange: issue.textRange,
+      }))
+      return
+    }
+
+    // 从 API 获取问题
+    const response = await searchIssues({
+      componentKeys: componentKey,
+      resolved: 'false',
+      ps: 500, // 获取最多 500 个问题
+    })
+
+    fileIssues.value = response.issues
+      .filter((issue: Issue) => issue.component === componentKey && issue.line)
+      .map((issue: Issue) => ({
+        line: issue.line!,
+        key: issue.key,
+        severity: issue.severity,
+        message: issue.message,
+        textRange: issue.flows?.[0]?.locations?.[0]?.textRange
+          ? {
+              startLine: issue.flows[0].locations[0].textRange.startLine,
+              endLine: issue.flows[0].locations[0].textRange.endLine,
+              startOffset: 0,
+              endOffset: 0,
+            }
+          : undefined,
+      }))
+  } catch (error) {
+    console.error('Failed to load component issues:', error)
+    // 如果 API 失败，尝试使用 mock 数据
+    if (mockSources[componentKey]?.issues) {
+      fileIssues.value = mockSources[componentKey].issues.map(issue => ({
+        line: issue.line,
+        key: issue.key,
+        severity: issue.severity,
+        message: issue.message,
+        textRange: issue.textRange,
+      }))
+    } else {
+      fileIssues.value = []
+    }
+  }
 }
 
 function handleFileSelect(component: ComponentMeasure) {
@@ -235,7 +328,18 @@ function handleBranchChange() {
   }
 }
 
-function handleIssueClick(issue: { line: number; key: string; severity: string }) {
+function handleIssueClick(issue: {
+  line: number
+  key: string
+  severity: string
+  message?: string
+  textRange?: {
+    startLine: number
+    endLine: number
+    startOffset: number
+    endOffset: number
+  }
+}) {
   router.push({
     name: 'Issues',
     query: { issues: issue.key },
@@ -296,9 +400,10 @@ function performSearch() {
 }
 
 .file-tree-container {
-  width: 300px;
+  width: 320px;
   flex-shrink: 0;
-  background: #fff;
+  padding: 16px;
+  background: #f5f7fa;
   overflow: hidden;
 }
 

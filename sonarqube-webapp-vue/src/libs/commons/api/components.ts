@@ -85,6 +85,40 @@ export function getSources(
   branch?: string,
   pullRequest?: string
 ): Promise<SourceLine[]> {
+  // 从 componentKey 中提取文件路径
+  const pathMatch = component.match(/^[^:]+:(.+)$/)
+  if (pathMatch) {
+    const filePath = pathMatch[1]
+    // 尝试从本地文件系统读取
+    return fetch(`/api/files/${encodeURIComponent(filePath)}`)
+      .then(response => {
+        if (response.ok) {
+          return response.text().then(content => {
+            const lines = content.split('\n')
+            const startLine = from || 1
+            const endLine = to || lines.length
+            return lines.slice(startLine - 1, endLine).map((code, index) => ({
+              line: startLine + index,
+              code: code || '',
+            }))
+          })
+        }
+        // 如果文件不存在，回退到 API
+        throw new Error('File not found')
+      })
+      .catch(() => {
+        // 回退到原始 API
+        return getJSON<SourceLine[]>('/api/sources/lines', {
+          component,
+          from,
+          to,
+          branch,
+          pullRequest,
+        })
+      })
+  }
+
+  // 如果没有路径，使用原始 API
   return getJSON<SourceLine[]>('/api/sources/lines', {
     component,
     from,

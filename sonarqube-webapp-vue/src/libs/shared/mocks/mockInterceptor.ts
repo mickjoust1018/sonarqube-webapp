@@ -750,23 +750,49 @@ export function getMockResponse(
     }
   }
 
-  // 源代码相关 API
+  // 源代码相关 API - 从本地文件系统读取
   if (url.includes('/sources/lines')) {
-    const key = params.key
+    const componentKey = params.component || params.key
+    if (!componentKey) {
+      return { sources: [] }
+    }
+
+    // 从 componentKey 中提取文件路径
+    // componentKey 格式: "project-key:src/path/to/file.vue"
+    const pathMatch = componentKey.match(/^[^:]+:(.+)$/)
+    if (!pathMatch) {
+      // 如果没有路径，尝试从 mockSources 获取
+      const sourceData = mockSources[componentKey]
+      if (sourceData) {
+        const from = params.from || 1
+        const to = params.to || 10000
+        return {
+          sources: sourceData.sources.slice(from - 1, to),
+        }
+      }
+      return { sources: [] }
+    }
+
+    const filePath = pathMatch[1]
     const from = params.from || 1
-    const to = params.to || 1000
-    const sourceData = mockSources[key]
+    const to = params.to || 10000
+
+    // 异步读取本地文件（通过 Vite 中间件）
+    // 注意：getMockResponse 是同步函数，所以我们需要返回一个 Promise
+    // 但实际上，由于这是在拦截器中，我们需要同步返回
+    // 所以先尝试从 mockSources 获取，如果没有再尝试读取文件
+
+    // 首先检查是否有 mock 数据
+    const sourceData = mockSources[componentKey]
     if (sourceData) {
       return {
         sources: sourceData.sources.slice(from - 1, to),
       }
     }
-    // 生成示例源代码
-    const sources = []
-    for (let i = from; i <= to; i++) {
-      sources.push({ line: i, code: `// Line ${i}` })
-    }
-    return { sources }
+
+    // 如果没有 mock 数据，返回一个标记，让请求继续到真实 API
+    // 真实 API 会通过 Vite 中间件读取本地文件
+    return null
   }
 
   // 规则详情 API

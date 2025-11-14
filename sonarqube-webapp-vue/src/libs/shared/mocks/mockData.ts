@@ -18,11 +18,290 @@ export function generateDateRange(days: number): string[] {
 
 // Mock 用户数据
 export const mockUsers = [
-  { login: 'admin', name: 'Administrator', email: 'admin@example.com', active: true },
-  { login: 'john.doe', name: 'John Doe', email: 'john.doe@example.com', active: true },
-  { login: 'jane.smith', name: 'Jane Smith', email: 'jane.smith@example.com', active: true },
-  { login: 'bob.wilson', name: 'Bob Wilson', email: 'bob.wilson@example.com', active: true },
-  { login: 'alice.brown', name: 'Alice Brown', email: 'alice.brown@example.com', active: true },
+  {
+    login: 'admin',
+    name: 'Administrator',
+    email: 'admin@example.com',
+    active: true,
+    scmAccounts: ['admin'],
+    local: true,
+    groups: ['sonar-administrators'],
+    lastConnectionDate: '2024-01-15T10:30:00Z',
+  },
+  {
+    login: 'john.doe',
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    active: true,
+    scmAccounts: ['john.doe'],
+    local: true,
+    groups: ['sonar-users'],
+    lastConnectionDate: '2024-01-14T15:20:00Z',
+  },
+  {
+    login: 'jane.smith',
+    name: 'Jane Smith',
+    email: 'jane.smith@example.com',
+    active: true,
+    scmAccounts: ['jane.smith'],
+    local: true,
+    groups: ['sonar-users', 'developers'],
+    lastConnectionDate: '2024-01-15T09:15:00Z',
+  },
+  {
+    login: 'bob.wilson',
+    name: 'Bob Wilson',
+    email: 'bob.wilson@example.com',
+    active: true,
+    scmAccounts: ['bob.wilson'],
+    local: true,
+    groups: ['sonar-users', 'qa-team'],
+    lastConnectionDate: '2024-01-13T14:30:00Z',
+  },
+  {
+    login: 'alice.brown',
+    name: 'Alice Brown',
+    email: 'alice.brown@example.com',
+    active: true,
+    scmAccounts: ['alice.brown'],
+    local: true,
+    groups: ['sonar-users'],
+    lastConnectionDate: '2024-01-12T11:45:00Z',
+  },
+  {
+    login: 'charlie.davis',
+    name: 'Charlie Davis',
+    email: 'charlie.davis@example.com',
+    active: false,
+    scmAccounts: ['charlie.davis'],
+    local: true,
+    groups: ['sonar-users'],
+    lastConnectionDate: '2024-01-01T08:00:00Z',
+  },
+  {
+    login: 'diana.miller',
+    name: 'Diana Miller',
+    email: 'diana.miller@example.com',
+    active: true,
+    scmAccounts: ['diana.miller'],
+    local: false,
+    groups: ['sonar-users'],
+    lastConnectionDate: '2024-01-15T16:20:00Z',
+  },
+]
+
+// Mock 组数据
+export const mockGroups = [
+  {
+    name: 'sonar-administrators',
+    description: '系统管理员组',
+    membersCount: 1,
+    default: false,
+  },
+  {
+    name: 'sonar-users',
+    description: '普通用户组',
+    membersCount: 6,
+    default: true,
+  },
+  {
+    name: 'developers',
+    description: '开发人员组',
+    membersCount: 1,
+    default: false,
+  },
+  {
+    name: 'qa-team',
+    description: 'QA 测试组',
+    membersCount: 1,
+    default: false,
+  },
+  {
+    name: 'project-admins',
+    description: '项目管理员组',
+    membersCount: 0,
+    default: false,
+  },
+]
+
+// Mock 质量门数据
+export const mockQualityGatesList = [
+  {
+    id: '1',
+    name: 'Sonar way',
+    isDefault: true,
+    isBuiltIn: true,
+    conditions: [
+      { metric: 'coverage', op: 'LT', error: '80' },
+      { metric: 'duplicated_lines_density', op: 'GT', error: '3' },
+      { metric: 'bugs', op: 'GT', error: '0' },
+    ],
+  },
+  {
+    id: '2',
+    name: 'Strict Quality Gate',
+    isDefault: false,
+    isBuiltIn: false,
+    conditions: [
+      { metric: 'coverage', op: 'LT', error: '90' },
+      { metric: 'duplicated_lines_density', op: 'GT', error: '1' },
+      { metric: 'bugs', op: 'GT', error: '0' },
+      { metric: 'vulnerabilities', op: 'GT', error: '0' },
+    ],
+  },
+  {
+    id: '3',
+    name: 'Relaxed Quality Gate',
+    isDefault: false,
+    isBuiltIn: false,
+    conditions: [
+      { metric: 'coverage', op: 'LT', error: '60' },
+      { metric: 'duplicated_lines_density', op: 'GT', error: '5' },
+    ],
+  },
+]
+
+// Mock 质量配置数据
+export const mockQualityProfiles = [
+  {
+    key: 'java-sonar-way',
+    name: 'Sonar way',
+    language: 'java',
+    languageName: 'Java',
+    isDefault: true,
+    isBuiltIn: true,
+    activeRuleCount: 250,
+    projectCount: 15,
+    lastUsed: '2024-01-15T10:30:00Z',
+  },
+  {
+    key: 'java-strict',
+    name: 'Strict Java Profile',
+    language: 'java',
+    languageName: 'Java',
+    isDefault: false,
+    isBuiltIn: false,
+    activeRuleCount: 320,
+    projectCount: 5,
+    lastUsed: '2024-01-14T15:20:00Z',
+  },
+  {
+    key: 'js-sonar-way',
+    name: 'Sonar way',
+    language: 'js',
+    languageName: 'JavaScript',
+    isDefault: true,
+    isBuiltIn: true,
+    activeRuleCount: 180,
+    projectCount: 8,
+    lastUsed: '2024-01-15T09:15:00Z',
+  },
+  {
+    key: 'ts-sonar-way',
+    name: 'Sonar way',
+    language: 'ts',
+    languageName: 'TypeScript',
+    isDefault: true,
+    isBuiltIn: true,
+    activeRuleCount: 195,
+    projectCount: 12,
+    lastUsed: '2024-01-15T11:45:00Z',
+  },
+]
+
+// Mock 安全热点数据
+export const mockSecurityHotspots = [
+  {
+    key: 'AX-SEC-001',
+    component: 'src/main/java/com/example/Controller.java',
+    project: 'my-project',
+    rule: 'java:S5131',
+    message: 'Endpoints should not be vulnerable to reflected XSS attacks',
+    vulnerabilityProbability: 'HIGH',
+    status: 'TO_REVIEW',
+    line: 89,
+    creationDate: '2024-01-12T11:20:00Z',
+    assignee: 'bob.wilson',
+  },
+  {
+    key: 'AX-SEC-002',
+    component: 'src/main/java/com/example/Service.java',
+    project: 'my-project',
+    rule: 'java:S2083',
+    message: 'HTTP connections should be reused',
+    vulnerabilityProbability: 'MEDIUM',
+    status: 'REVIEWED',
+    line: 67,
+    creationDate: '2024-01-10T09:15:00Z',
+    assignee: 'jane.smith',
+  },
+  {
+    key: 'AX-SEC-003',
+    component: 'src/main/java/com/example/Security.java',
+    project: 'api-service',
+    rule: 'java:S5131',
+    message: 'Endpoints should not be vulnerable to reflected XSS attacks',
+    vulnerabilityProbability: 'HIGH',
+    status: 'TO_REVIEW',
+    line: 45,
+    creationDate: '2024-01-11T14:30:00Z',
+  },
+]
+
+// Mock 编码规则数据
+export const mockCodingRules = [
+  {
+    key: 'java:S1067',
+    name: 'Expressions should not be too complex',
+    severity: 'MAJOR',
+    type: 'CODE_SMELL',
+    status: 'READY',
+    language: 'java',
+    languageName: 'Java',
+    tags: ['complexity', 'brain-overload'],
+    sysTags: ['maintainability'],
+    isTemplate: false,
+    description: 'Complex expressions are hard to read and understand.',
+  },
+  {
+    key: 'java:S2259',
+    name: 'Null pointers should not be dereferenced',
+    severity: 'CRITICAL',
+    type: 'BUG',
+    status: 'READY',
+    language: 'java',
+    languageName: 'Java',
+    tags: ['bug', 'null'],
+    sysTags: ['reliability'],
+    isTemplate: false,
+    description: 'A null pointer dereference can lead to a NullPointerException.',
+  },
+  {
+    key: 'java:S2083',
+    name: 'HTTP connections should be reused',
+    severity: 'MINOR',
+    type: 'CODE_SMELL',
+    status: 'READY',
+    language: 'java',
+    languageName: 'Java',
+    tags: ['performance'],
+    sysTags: ['performance'],
+    isTemplate: false,
+    description: 'HTTP connections should be reused to improve performance.',
+  },
+  {
+    key: 'java:S5131',
+    name: 'Endpoints should not be vulnerable to reflected XSS attacks',
+    severity: 'BLOCKER',
+    type: 'VULNERABILITY',
+    status: 'READY',
+    language: 'java',
+    languageName: 'Java',
+    tags: ['security', 'xss', 'owasp'],
+    sysTags: ['security'],
+    isTemplate: false,
+    description: 'Endpoints should not be vulnerable to reflected XSS attacks.',
+  },
 ]
 
 // Mock 项目数据
@@ -707,86 +986,200 @@ export const mockBranches: Record<string, any[]> = {
   ],
 }
 
-// Mock 文件树数据
+// 生成基于实际项目文件结构的文件树数据
+function generateFileTreeFromProject(projectKey: string, projectName: string): any {
+  // 实际项目的文件列表（基于当前项目结构）
+  const projectFiles = [
+    'src/App.vue',
+    'src/main.ts',
+    'src/env.d.ts',
+    'src/components/a11y/A11ySkipLinks.vue',
+    'src/components/code/FileTree.vue',
+    'src/components/code/SourceViewer.vue',
+    'src/components/global-search/GlobalSearch.vue',
+    'src/components/issues/IssueCodeContext.vue',
+    'src/components/issues/IssueDetailsSidebar.vue',
+    'src/components/issues/IssueFlowViewer.vue',
+    'src/components/layout/GlobalFooter.vue',
+    'src/components/layout/GlobalHeader.vue',
+    'src/components/nav/ComponentNav.vue',
+    'src/components/nav/GlobalNavMenu.vue',
+    'src/components/nav/GlobalNavUser.vue',
+    'src/components/nav/LanguageSwitcher.vue',
+    'src/components/nav/SettingsNav.vue',
+    'src/components/notifications/IndexationNotification.vue',
+    'src/components/notifications/NonProductionDatabaseWarning.vue',
+    'src/components/notifications/SystemAnnouncement.vue',
+    'src/components/notifications/UpdateNotification.vue',
+    'src/components/workspace/Workspace.vue',
+    'src/composables/useComponentContext.ts',
+    'src/composables/useI18n.ts',
+    'src/composables/useIndexationContext.ts',
+    'src/composables/useMetricsContext.ts',
+    'src/i18n/index.ts',
+    'src/i18n/locales/en.json',
+    'src/i18n/locales/zh.json',
+    'src/layouts/AdminContainer.vue',
+    'src/layouts/ComponentContainer.vue',
+    'src/layouts/GlobalContainer.vue',
+    'src/layouts/ProjectAdminContainer.vue',
+    'src/layouts/SimpleContainer.vue',
+    'src/libs/commons/api/branches.ts',
+    'src/libs/commons/api/components.ts',
+    'src/libs/commons/api/favorites.ts',
+    'src/libs/commons/api/features.ts',
+    'src/libs/commons/api/issues.ts',
+    'src/libs/commons/api/measures.ts',
+    'src/libs/commons/api/navigation.ts',
+    'src/libs/commons/api/project-activity.ts',
+    'src/libs/commons/api/projects.ts',
+    'src/libs/commons/api/quality-gates.ts',
+    'src/libs/commons/api/rules.ts',
+    'src/libs/commons/api/settings.ts',
+    'src/libs/commons/api/tasks.ts',
+    'src/libs/commons/api/users.ts',
+    'src/libs/shared/mocks/mockData.ts',
+    'src/libs/shared/mocks/mockInterceptor.ts',
+    'src/libs/shared/utils/browser.ts',
+    'src/libs/shared/utils/i18n.ts',
+    'src/libs/shared/utils/issues-utils.ts',
+    'src/libs/shared/utils/request.ts',
+    'src/libs/shared/utils/types.ts',
+    'src/router/index.ts',
+    'src/stores/app.ts',
+    'src/styles/main.css',
+    'src/views/account/Account.vue',
+    'src/views/code/Code.vue',
+    'src/views/coding-rules/CodingRules.vue',
+    'src/views/component-measures/ComponentMeasures.vue',
+    'src/views/groups/Groups.vue',
+    'src/views/issues/Issues.vue',
+    'src/views/overview/Dashboard.vue',
+    'src/views/overview/ProjectOverview.vue',
+    'src/views/projects/Branches.vue',
+    'src/views/projects/CreateProject.vue',
+    'src/views/projects/Projects.vue',
+    'src/views/quality-gates/QualityGates.vue',
+    'src/views/quality-profiles/QualityProfiles.vue',
+    'src/views/security-hotspots/SecurityHotspots.vue',
+    'src/views/users/Users.vue',
+  ]
+
+  // 构建目录树结构
+  const dirMap = new Map<string, any>()
+  const components: any[] = []
+
+  // 添加根组件
+  const baseComponent = {
+    key: projectKey,
+    name: projectName,
+    qualifier: 'TRK',
+    path: '',
+  }
+
+  // 处理每个文件
+  projectFiles.forEach(filePath => {
+    const parts = filePath.split('/')
+    let currentPath = ''
+    let parentKey = projectKey
+
+    parts.forEach((part, index) => {
+      const isFile = index === parts.length - 1
+      currentPath = currentPath ? `${currentPath}/${part}` : part
+      const key = `${projectKey}:${currentPath}`
+
+      if (!dirMap.has(key)) {
+        const component: any = {
+          key,
+          name: part,
+          qualifier: isFile ? 'FIL' : 'DIR',
+          path: currentPath,
+          measures: [],
+        }
+
+        // 为文件添加模拟的度量数据
+        if (isFile) {
+          const ext = part.split('.').pop()?.toLowerCase()
+          const isVue = ext === 'vue'
+          const isTs = ext === 'ts' || ext === 'tsx'
+          const isJson = ext === 'json'
+          const isCss = ext === 'css'
+
+          // 模拟代码行数（根据文件类型）
+          let ncloc = 0
+          if (isVue || isTs) {
+            ncloc = Math.floor(Math.random() * 500) + 50
+          } else if (isJson) {
+            ncloc = Math.floor(Math.random() * 100) + 10
+          } else if (isCss) {
+            ncloc = Math.floor(Math.random() * 200) + 20
+          }
+
+          if (ncloc > 0) {
+            component.measures = [
+              { metric: 'coverage', value: String(Math.floor(Math.random() * 30) + 70) },
+              { metric: 'ncloc', value: String(ncloc) },
+              { metric: 'complexity', value: String(Math.floor(Math.random() * 20) + 5) },
+            ]
+          }
+        } else {
+          // 目录的度量数据稍后计算
+          component.measures = []
+        }
+
+        components.push(component)
+        dirMap.set(key, component)
+
+        // 建立父子关系（这里简化处理，实际应该构建树结构）
+      }
+
+      parentKey = key
+    })
+  })
+
+  // 计算目录的度量数据（汇总子项）
+  const dirMetrics = new Map<string, { ncloc: number; files: number }>()
+  components.forEach(comp => {
+    if (comp.qualifier === 'FIL') {
+      const pathParts = comp.path.split('/')
+      for (let i = 0; i < pathParts.length - 1; i++) {
+        const dirPath = pathParts.slice(0, i + 1).join('/')
+        const dirKey = `${projectKey}:${dirPath}`
+        if (!dirMetrics.has(dirKey)) {
+          dirMetrics.set(dirKey, { ncloc: 0, files: 0 })
+        }
+        const metrics = dirMetrics.get(dirKey)!
+        const ncloc = parseInt(comp.measures.find((m: any) => m.metric === 'ncloc')?.value || '0')
+        metrics.ncloc += ncloc
+        metrics.files += 1
+      }
+    }
+  })
+
+  // 更新目录的度量数据
+  components.forEach(comp => {
+    if (comp.qualifier === 'DIR') {
+      const metrics = dirMetrics.get(comp.key)
+      if (metrics) {
+        comp.measures = [
+          { metric: 'ncloc', value: String(metrics.ncloc) },
+          { metric: 'files', value: String(metrics.files) },
+        ]
+      }
+    }
+  })
+
+  return {
+    baseComponent,
+    components,
+  }
+}
+
+// Mock 文件树数据 - 基于实际项目结构
 export const mockComponentTree: Record<string, any> = {
-  'my-project': {
-    baseComponent: {
-      key: 'my-project',
-      name: 'My Project',
-      qualifier: 'TRK',
-      path: '',
-    },
-    components: [
-      {
-        key: 'my-project:src',
-        name: 'src',
-        qualifier: 'DIR',
-        path: 'src',
-        measures: [],
-      },
-      {
-        key: 'my-project:src/main',
-        name: 'main',
-        qualifier: 'DIR',
-        path: 'src/main',
-        measures: [],
-      },
-      {
-        key: 'my-project:src/main/java',
-        name: 'java',
-        qualifier: 'DIR',
-        path: 'src/main/java',
-        measures: [],
-      },
-      {
-        key: 'my-project:src/main/java/com',
-        name: 'com',
-        qualifier: 'DIR',
-        path: 'src/main/java/com',
-        measures: [],
-      },
-      {
-        key: 'my-project:src/main/java/com/example',
-        name: 'example',
-        qualifier: 'DIR',
-        path: 'src/main/java/com/example',
-        measures: [],
-      },
-      {
-        key: 'my-project:src/main/java/com/example/Service.java',
-        name: 'Service.java',
-        qualifier: 'FIL',
-        path: 'src/main/java/com/example/Service.java',
-        measures: [
-          { metric: 'coverage', value: '85.5' },
-          { metric: 'ncloc', value: '250' },
-          { metric: 'complexity', value: '15' },
-        ],
-      },
-      {
-        key: 'my-project:src/main/java/com/example/Controller.java',
-        name: 'Controller.java',
-        qualifier: 'FIL',
-        path: 'src/main/java/com/example/Controller.java',
-        measures: [
-          { metric: 'coverage', value: '92.3' },
-          { metric: 'ncloc', value: '180' },
-          { metric: 'complexity', value: '8' },
-        ],
-      },
-      {
-        key: 'my-project:src/main/java/com/example/Utils.java',
-        name: 'Utils.java',
-        qualifier: 'FIL',
-        path: 'src/main/java/com/example/Utils.java',
-        measures: [
-          { metric: 'coverage', value: '78.9' },
-          { metric: 'ncloc', value: '120' },
-          { metric: 'complexity', value: '5' },
-        ],
-      },
-    ],
-  },
+  'my-project': generateFileTreeFromProject('my-project', 'My Project'),
+  'web-app': generateFileTreeFromProject('web-app', 'Web Application'),
+  'api-service': generateFileTreeFromProject('api-service', 'API Service'),
 }
 
 // Mock 源代码数据
@@ -852,6 +1245,82 @@ export const mockSources: Record<string, any> = {
       { line: 14, code: '}' },
     ],
     issues: [{ line: 123, key: 'AX987654321', severity: 'CRITICAL' }],
+  },
+  'my-project:src/composables/useMetricsContext.ts': {
+    sources: [
+      { line: 1, code: "import { ref, computed, watch } from 'vue'" },
+      { line: 2, code: "import { useQuery } from '@tanstack/vue-query'" },
+      { line: 3, code: "import { getMeasures } from '@/libs/commons/api/measures'" },
+      { line: 4, code: '' },
+      { line: 5, code: 'export function useMetricsContext(componentKey: string) {' },
+      { line: 6, code: '  const metrics = ref<Record<string, string>>({})' },
+      { line: 7, code: '  const loading = ref(false)' },
+      { line: 8, code: '' },
+      { line: 9, code: '  const { data, isLoading } = useQuery({' },
+      { line: 10, code: "    queryKey: ['measures', componentKey]," },
+      { line: 11, code: '    queryFn: () => getMeasures(componentKey),' },
+      { line: 12, code: '  })' },
+      { line: 13, code: '' },
+      { line: 14, code: '  watch(data, (newData) => {' },
+      { line: 15, code: '    if (newData) {' },
+      { line: 16, code: '      metrics.value = newData.reduce((acc, measure) => {' },
+      { line: 17, code: '        acc[measure.metric] = measure.value' },
+      { line: 18, code: '        return acc' },
+      { line: 19, code: '      }, {} as Record<string, string>)' },
+      { line: 20, code: '    }' },
+      { line: 21, code: '  })' },
+      { line: 22, code: '' },
+      { line: 23, code: '  const coverage = computed(() => metrics.value.coverage || "0")' },
+      { line: 24, code: '  const complexity = computed(() => metrics.value.complexity || "0")' },
+      { line: 25, code: '  const ncloc = computed(() => metrics.value.ncloc || "0")' },
+      { line: 26, code: '' },
+      { line: 27, code: '  return {' },
+      { line: 28, code: '    metrics,' },
+      { line: 29, code: '    loading: isLoading,' },
+      { line: 30, code: '    coverage,' },
+      { line: 31, code: '    complexity,' },
+      { line: 32, code: '    ncloc,' },
+      { line: 33, code: '  }' },
+      { line: 34, code: '}' },
+    ],
+    issues: [
+      {
+        line: 16,
+        key: 'AX111111111',
+        severity: 'MAJOR',
+        message: 'Reduce function should be simplified',
+        textRange: {
+          startLine: 16,
+          endLine: 19,
+          startOffset: 0,
+          endOffset: 0,
+        },
+      },
+      {
+        line: 23,
+        key: 'AX222222222',
+        severity: 'MINOR',
+        message: 'Use optional chaining for safer access',
+        textRange: {
+          startLine: 23,
+          endLine: 23,
+          startOffset: 0,
+          endOffset: 0,
+        },
+      },
+      {
+        line: 9,
+        key: 'AX333333333',
+        severity: 'CRITICAL',
+        message: 'Missing error handling in query',
+        textRange: {
+          startLine: 9,
+          endLine: 12,
+          startOffset: 0,
+          endOffset: 0,
+        },
+      },
+    ],
   },
 }
 

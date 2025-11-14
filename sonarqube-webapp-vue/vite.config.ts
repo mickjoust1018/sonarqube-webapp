@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import { fileURLToPath, URL } from 'node:url'
 import type { Plugin } from 'vite'
+import { readFileSync, existsSync } from 'fs'
 
 // Plugin to handle .well-known paths locally to avoid CSP violations
 const handleWellKnownPlugin = (): Plugin => {
@@ -23,9 +24,50 @@ const handleWellKnownPlugin = (): Plugin => {
   }
 }
 
+// Plugin to read local files for source code viewer
+const localFileReaderPlugin = (): Plugin => {
+  return {
+    name: 'local-file-reader',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        // Handle /api/files/* requests to read local files
+        if (req.url?.startsWith('/api/files/')) {
+          const filePath = decodeURIComponent(req.url.replace('/api/files/', ''))
+          // 从项目根目录读取文件
+          const fullPath = resolve(process.cwd(), filePath)
+
+          // 安全检查：确保文件在项目目录内
+          const projectRoot = resolve(process.cwd())
+          if (!fullPath.startsWith(projectRoot)) {
+            res.statusCode = 403
+            res.end('Access denied')
+            return
+          }
+
+          try {
+            if (existsSync(fullPath)) {
+              const content = readFileSync(fullPath, 'utf-8')
+              res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+              res.end(content)
+            } else {
+              res.statusCode = 404
+              res.end('File not found')
+            }
+          } catch (error) {
+            res.statusCode = 500
+            res.end('Error reading file')
+          }
+          return
+        }
+        next()
+      })
+    },
+  }
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(), handleWellKnownPlugin()],
+  plugins: [vue(), handleWellKnownPlugin(), localFileReaderPlugin()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
