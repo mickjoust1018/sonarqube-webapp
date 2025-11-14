@@ -192,8 +192,9 @@ async function loadComponentTree() {
         selectComponent(comp)
       }
     }
-  } catch (error) {
-    ElMessage.error(t('codeViewer.loadTreeFailed'))
+  } catch (error: any) {
+    console.error('Failed to load component tree:', error)
+    ElMessage.error(error?.message || t('codeViewer.loadTreeFailed'))
   }
 }
 

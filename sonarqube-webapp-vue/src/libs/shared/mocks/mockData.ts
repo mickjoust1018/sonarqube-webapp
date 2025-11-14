@@ -739,8 +739,15 @@ export const mockComponentTree: Record<string, any> = {
         measures: [],
       },
       {
-        key: 'my-project:src/main/java/com/example',
+        key: 'my-project:src/main/java/com',
         name: 'com',
+        qualifier: 'DIR',
+        path: 'src/main/java/com',
+        measures: [],
+      },
+      {
+        key: 'my-project:src/main/java/com/example',
+        name: 'example',
         qualifier: 'DIR',
         path: 'src/main/java/com/example',
         measures: [],

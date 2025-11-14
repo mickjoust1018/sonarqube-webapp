@@ -114,7 +114,16 @@ const canAdmin = computed(() => {
 })
 
 const globalPages = computed(() => {
-  return appStore.appState?.globalPages || []
+  const pages = appStore.appState?.globalPages || []
+  // 去重：基于 key 字段去重
+  const seen = new Set<string>()
+  return pages.filter((page) => {
+    if (seen.has(page.key)) {
+      return false
+    }
+    seen.add(page.key)
+    return true
+  })
 })
 
 function handleMenuSelect(key: string) {

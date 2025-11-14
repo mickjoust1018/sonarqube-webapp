@@ -601,9 +601,24 @@ export function getMockResponse(
   }
 
   // 组件树相关 API
-  if (url.includes('/measures/component_tree')) {
+  if (url.includes('/measures/component_tree') || url.includes('/components/tree')) {
     const component = params.component
-    return mockComponentTree[component] || mockComponentTree['my-project']
+    const tree = mockComponentTree[component] || mockComponentTree['my-project']
+    if (tree) {
+      return {
+        baseComponent: tree.baseComponent,
+        components: tree.components || [],
+      }
+    }
+    return {
+      baseComponent: {
+        key: component,
+        name: component,
+        qualifier: 'TRK',
+        path: '',
+      },
+      components: [],
+    }
   }
 
   if (url.includes('/components/show')) {
@@ -685,6 +700,36 @@ export function getMockResponse(
       },
       ancestors: [],
     }
+  }
+
+  if (url.includes('/components/breadcrumbs')) {
+    const componentKey = params.component
+    const tree = mockComponentTree['my-project']
+    if (tree) {
+      const comp = tree.components.find((c: any) => c.key === componentKey) || tree.baseComponent
+      if (comp) {
+        // 构建面包屑路径
+        const breadcrumbs: any[] = [tree.baseComponent]
+        const keyParts = componentKey.split(':')
+        for (let i = 1; i < keyParts.length; i++) {
+          const partialKey = keyParts.slice(0, i + 1).join(':')
+          const ancestor = tree.components.find((c: any) => c.key === partialKey)
+          if (ancestor) {
+            breadcrumbs.push(ancestor)
+          }
+        }
+        return breadcrumbs
+      }
+    }
+    // 默认返回项目本身
+    return [
+      {
+        key: componentKey,
+        name: componentKey,
+        qualifier: 'TRK',
+        path: '',
+      },
+    ]
   }
 
   if (url.includes('/components/app')) {

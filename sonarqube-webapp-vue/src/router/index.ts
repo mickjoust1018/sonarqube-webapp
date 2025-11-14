@@ -249,6 +249,17 @@ const routes: RouteRecordRaw[] = [
         name: 'TaskDetail',
         component: () => import('@/views/tasks/TaskDetail.vue'),
       },
+      // 特殊处理：/extension/tasks 重定向到 /tasks（必须在通用路由之前）
+      {
+        path: 'extension/tasks',
+        redirect: '/tasks',
+      },
+      // 全局扩展页面
+      {
+        path: 'extension/:pluginKey/:extensionKey',
+        name: 'GlobalPageExtension',
+        component: () => import('@/views/extensions/GlobalPageExtension.vue'),
+      },
       {
         path: 'projects',
         name: 'Projects',
