@@ -2,6 +2,7 @@
   <div class="admin-container">
     <div class="admin-header-wrapper">
       <GlobalHeader />
+      <!-- SettingsNav 只在管理页面显示 -->
       <div id="component-nav-portal"></div>
     </div>
     <div class="admin-content">
@@ -147,7 +148,10 @@ onUnmounted(() => {
 }
 
 #component-nav-portal {
-  /* Portal 锚点，SettingsNav 会渲染到这里 */
+  /* Portal 锚点，SettingsNav 会渲染到这里（只在管理页面显示） */
+  width: 100%;
+  background-color: #fff;
+  min-height: 0;
 }
 
 .admin-content {

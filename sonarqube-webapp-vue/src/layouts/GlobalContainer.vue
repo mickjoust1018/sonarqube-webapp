@@ -9,7 +9,8 @@
         <UpdateNotification :is-global-banner="true" />
       </div>
       <GlobalHeader />
-      <div id="component-nav-portal"></div>
+      <!-- ComponentNav 只在项目页面显示 -->
+      <div v-if="isProjectPage" id="component-nav-portal"></div>
     </div>
     <div class="main-content" id="main-content">
       <Workspace>
@@ -71,6 +72,11 @@ const isSecondaryBackground = computed(() => {
   return PAGES_WITH_SECONDARY_BACKGROUND.includes(route.path)
 })
 
+// 判断是否是项目页面
+const isProjectPage = computed(() => {
+  return route.path.startsWith('/project/')
+})
+
 // 提供 IndexationContext
 const indexationStatus = ref<'completed' | 'in_progress' | 'none'>('none')
 const indexationCompletedCount = ref(0)
@@ -122,14 +128,19 @@ provideMetricsContext({
 }
 
 #component-nav-portal {
-  /* Portal 锚点，ComponentNav 会渲染到这里 */
+  /* Portal 锚点，ComponentNav 会渲染到这里（只在项目页面显示） */
   width: 100%;
   background-color: #fff;
+  min-height: 0;
 }
 
 .main-content {
   flex: 1;
   overflow: auto;
   background-color: inherit;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 </style>

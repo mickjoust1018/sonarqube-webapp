@@ -8,6 +8,7 @@
       </div>
       <GlobalNavMenu />
       <div class="header-actions">
+        <LanguageSwitcher />
         <GlobalSearch />
         <GlobalNavUser />
       </div>
@@ -20,6 +21,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import GlobalNavMenu from '@/components/nav/GlobalNavMenu.vue'
 import GlobalNavUser from '@/components/nav/GlobalNavUser.vue'
 import GlobalSearch from '@/components/global-search/GlobalSearch.vue'
+import LanguageSwitcher from '@/components/nav/LanguageSwitcher.vue'
 import { throttle } from 'lodash-es'
 
 const hasShadow = ref(false)

@@ -1,8 +1,11 @@
 <template>
   <div class="component-container">
     <div class="component-content">
-      <!-- ComponentNav 通过 Teleport 渲染到 portal -->
-      <Teleport to="#component-nav-portal" v-if="component && !isFile(component.qualifier)">
+      <!-- ComponentNav 通过 Teleport 渲染到 portal，只在项目页面且有组件数据时显示 -->
+      <Teleport
+        to="#component-nav-portal"
+        v-if="component && !isFile(component.qualifier) && componentKey"
+      >
         <ComponentNav
           :component="component"
           :is-in-progress="isInProgress"

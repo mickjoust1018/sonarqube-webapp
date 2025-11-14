@@ -1,8 +1,6 @@
 <template>
-  <div class="a11y-skip-links">
-    <a href="#main-content" class="skip-link">跳转到主要内容</a>
-    <a href="#global-navigation" class="skip-link">跳转到导航</a>
-  </div>
+  <!-- 暂时移除所有跳转链接，避免布局问题 -->
+  <div class="a11y-skip-links" style="display: none"></div>
 </template>
 
 <script setup lang="ts"></script>
