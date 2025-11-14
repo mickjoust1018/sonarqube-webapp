@@ -19,7 +19,7 @@ import { useRoute } from 'vue-router'
 
 const route = useRoute()
 
-const projectKey = computed(() => route.params.projectKey as string)
+const projectKey = computed(() => (route.params.id || route.params.projectKey) as string)
 </script>
 
 <style scoped>

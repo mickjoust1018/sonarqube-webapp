@@ -1,121 +1,95 @@
 import { getJSON } from '@/libs/shared/utils/request'
+import type { Component } from '../types/components'
 
-export interface ComponentMeasure {
-  key: string
-  name: string
-  qualifier: string
-  path?: string
-  measures?: Array<{ metric: string; value: string }>
+export interface ComponentDataResponse {
+  ancestors: Array<Omit<Component, 'tags'>>
+  component: Omit<Component, 'tags'>
 }
 
-export interface ComponentTreeResponse {
-  baseComponent: ComponentMeasure
-  components: ComponentMeasure[]
-  metrics?: any[]
-  paging?: {
-    pageIndex: number
-    pageSize: number
-    total: number
-  }
+export interface SuggestionsResponse {
+  results: Array<{
+    q: string
+    items: Array<{
+      key: string
+      name: string
+    }>
+    more?: number
+  }>
+}
+
+export interface ComponentMeasure extends Component {
+  measures?: Array<{
+    metric: string
+    value: string
+  }>
 }
 
 export interface SourceLine {
   line: number
   code: string
   coverageStatus?: string
-  duplicated?: boolean
+  coverageHits?: number
   scmRevision?: string
   scmAuthor?: string
   scmDate?: string
+  duplicated?: boolean
+  isNew?: boolean
 }
 
-export interface SourceViewerFile {
-  key: string
-  name: string
-  path: string
-  qualifier: string
-  q: string
-  measures?: Array<{ metric: string; value: string }>
+export interface ComponentTreeResponse {
+  baseComponent: ComponentMeasure
+  components: ComponentMeasure[]
+}
+
+export function getComponentData(params: {
+  component: string
+  branch?: string
+  pullRequest?: string
+}): Promise<ComponentDataResponse> {
+  return getJSON<ComponentDataResponse>('/api/components/show', params)
+}
+
+export function getSuggestions(
+  query: string,
+  recentlyBrowsed: string[] = []
+): Promise<SuggestionsResponse> {
+  return getJSON<SuggestionsResponse>('/api/components/suggestions', {
+    s: query,
+    recentlyBrowsed: recentlyBrowsed.join(','),
+  })
 }
 
 export function getComponentTree(
   component: string,
   strategy: string = 'children',
-  metrics: string[] = [],
-  additional: Record<string, any> = {}
+  metricKeys: string[] = []
 ): Promise<ComponentTreeResponse> {
-  return getJSON<ComponentTreeResponse>('/api/measures/component_tree', {
+  return getJSON<ComponentTreeResponse>('/api/components/tree', {
     component,
     strategy,
-    metricKeys: metrics.join(','),
-    ...additional,
+    metricKeys: metricKeys.join(','),
   })
 }
 
-export function getComponent(
-  component: string,
-  metricKeys: string = '',
-  branch?: string,
-  pullRequest?: string
-): Promise<{ component: ComponentMeasure }> {
-  return getJSON<{ component: ComponentMeasure }>('/api/measures/component', {
-    component,
-    metricKeys,
-    branch,
-    pullRequest,
-  })
-}
-
-export function getComponentData(
-  component: string,
-  branch?: string,
-  pullRequest?: string
-): Promise<{
-  ancestors: ComponentMeasure[]
-  component: ComponentMeasure
-}> {
-  return getJSON('/api/components/show', {
+export function getBreadcrumbs(component: string, branch?: string): Promise<ComponentMeasure[]> {
+  return getJSON<ComponentMeasure[]>('/api/components/breadcrumbs', {
     component,
     branch,
-    pullRequest,
   })
 }
 
 export function getSources(
-  key: string,
+  component: string,
   from?: number,
   to?: number,
   branch?: string,
   pullRequest?: string
 ): Promise<SourceLine[]> {
-  return getJSON<{ sources: SourceLine[] }>('/api/sources/lines', {
-    key,
+  return getJSON<SourceLine[]>('/api/sources/lines', {
+    component,
     from,
     to,
     branch,
     pullRequest,
-  }).then((r) => r.sources)
-}
-
-export function getComponentForSourceViewer(
-  component: string,
-  branch?: string,
-  pullRequest?: string
-): Promise<SourceViewerFile> {
-  return getJSON<SourceViewerFile>('/api/components/app', {
-    component,
-    branch,
-    pullRequest,
-  })
-}
-
-export function getBreadcrumbs(
-  component: string,
-  branch?: string,
-  pullRequest?: string
-): Promise<ComponentMeasure[]> {
-  return getComponentData(component, branch, pullRequest).then((r) => {
-    const reversedAncestors = [...r.ancestors].reverse()
-    return [...reversedAncestors, r.component]
   })
 }

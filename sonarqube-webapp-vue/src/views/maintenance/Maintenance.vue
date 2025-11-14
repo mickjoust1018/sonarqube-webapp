@@ -1,10 +1,6 @@
 <template>
   <div class="maintenance">
-    <el-result
-      icon="warning"
-      title="系统维护中"
-      sub-title="系统正在进行维护，请稍后再试"
-    >
+    <el-result icon="warning" title="系统维护中" sub-title="系统正在进行维护，请稍后再试">
       <template #extra>
         <el-button type="primary" @click="refresh">刷新页面</el-button>
       </template>

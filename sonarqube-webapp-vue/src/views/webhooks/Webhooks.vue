@@ -42,8 +42,9 @@ async function loadWebhooks() {
   loading.value = true
   try {
     const params: any = {}
-    if (route.params.projectKey) {
-      params.projectKey = route.params.projectKey
+    const projectKey = route.params.id || route.params.projectKey
+    if (projectKey) {
+      params.projectKey = projectKey as string
     }
     const data = await getJSON('/api/webhooks/list', params)
     webhooks.value = data.webhooks || []

@@ -6,6 +6,7 @@ import { getBaseUrl } from '@/libs/shared/utils/browser'
 const GlobalContainer = () => import('@/layouts/GlobalContainer.vue')
 const AdminContainer = () => import('@/layouts/AdminContainer.vue')
 const ComponentContainer = () => import('@/layouts/ComponentContainer.vue')
+const ProjectAdminContainer = () => import('@/layouts/ProjectAdminContainer.vue')
 const SimpleContainer = () => import('@/layouts/SimpleContainer.vue')
 
 // 功能模块
@@ -89,20 +90,10 @@ const routes: RouteRecordRaw[] = [
         name: 'Issues',
         component: () => import('@/views/issues/Issues.vue'),
       },
-      {
-        path: 'project/:projectKey/issues',
-        name: 'ProjectIssues',
-        component: () => import('@/views/issues/Issues.vue'),
-      },
-      // 代码查看
+      // 代码查看（全局）
       {
         path: 'code',
         name: 'Code',
-        component: () => import('@/views/code/Code.vue'),
-      },
-      {
-        path: 'project/:projectKey/code',
-        name: 'ProjectCode',
         component: () => import('@/views/code/Code.vue'),
       },
       // 编码规则
@@ -123,8 +114,9 @@ const routes: RouteRecordRaw[] = [
         name: 'Dashboard',
         component: () => import('@/views/overview/Dashboard.vue'),
       },
+      // 项目相关路由（使用 ComponentContainer）
       {
-        path: 'project/:projectKey',
+        path: 'project/:id',
         component: ComponentContainer,
         children: [
           {
@@ -132,7 +124,101 @@ const routes: RouteRecordRaw[] = [
             name: 'ProjectOverview',
             component: () => import('@/views/overview/ProjectOverview.vue'),
           },
+          {
+            path: 'issues',
+            name: 'ProjectIssues',
+            component: () => import('@/views/issues/Issues.vue'),
+          },
+          {
+            path: 'code',
+            name: 'ProjectCode',
+            component: () => import('@/views/code/Code.vue'),
+          },
+          {
+            path: 'security_hotspots',
+            name: 'ProjectSecurityHotspots',
+            component: () => import('@/views/security-hotspots/SecurityHotspots.vue'),
+          },
+          {
+            path: 'activity',
+            name: 'ProjectActivity',
+            component: () => import('@/views/project-activity/ProjectActivity.vue'),
+          },
+          {
+            path: 'information',
+            name: 'ProjectInformation',
+            component: () => import('@/views/project-information/ProjectInformation.vue'),
+          },
+          {
+            path: 'quality_gate',
+            name: 'ProjectQualityGate',
+            component: () => import('@/views/project-quality-gate/ProjectQualityGate.vue'),
+          },
+          {
+            path: 'quality_profiles',
+            name: 'ProjectQualityProfiles',
+            component: () => import('@/views/project-quality-profiles/ProjectQualityProfiles.vue'),
+          },
+          // 项目设置路由（使用 ProjectAdminContainer）
+          {
+            path: 'admin',
+            component: ProjectAdminContainer,
+            children: [
+              {
+                path: '',
+                name: 'ProjectAdmin',
+                component: () => import('@/views/admin/ProjectAdmin.vue'),
+              },
+              {
+                path: 'links',
+                name: 'ProjectLinks',
+                component: () => import('@/views/project-links/ProjectLinks.vue'),
+              },
+              {
+                path: 'new_code',
+                name: 'ProjectNewCode',
+                component: () => import('@/views/project-new-code/ProjectNewCode.vue'),
+              },
+              {
+                path: 'branches',
+                name: 'ProjectBranches',
+                component: () => import('@/views/projects/Branches.vue'),
+              },
+              {
+                path: 'deletion',
+                name: 'ProjectDeletion',
+                component: () => import('@/views/project-deletion/ProjectDeletion.vue'),
+              },
+              {
+                path: 'dump',
+                name: 'ProjectDump',
+                component: () => import('@/views/project-dump/ProjectDump.vue'),
+              },
+              {
+                path: 'key',
+                name: 'ProjectKey',
+                component: () => import('@/views/project-key/ProjectKey.vue'),
+              },
+              {
+                path: 'webhooks',
+                name: 'ProjectWebhooks',
+                component: () => import('@/views/webhooks/Webhooks.vue'),
+              },
+            ],
+          },
+          {
+            path: 'permissions',
+            name: 'ProjectPermissions',
+            component: () => import('@/views/permissions/ProjectPermissions.vue'),
+          },
         ],
+      },
+      // 兼容旧的路由格式（project/:projectKey）
+      {
+        path: 'project/:projectKey',
+        redirect: to => {
+          return { path: `/project/${to.params.projectKey}`, query: to.query }
+        },
       },
       // 质量门
       {
@@ -152,12 +238,17 @@ const routes: RouteRecordRaw[] = [
         name: 'SecurityHotspots',
         component: () => import('@/views/security-hotspots/SecurityHotspots.vue'),
       },
+      // 任务管理
       {
-        path: 'project/:projectKey/security_hotspots',
-        name: 'ProjectSecurityHotspots',
-        component: () => import('@/views/security-hotspots/SecurityHotspots.vue'),
+        path: 'tasks',
+        name: 'Tasks',
+        component: () => import('@/views/tasks/Tasks.vue'),
       },
-      // 项目管理
+      {
+        path: 'tasks/:taskId',
+        name: 'TaskDetail',
+        component: () => import('@/views/tasks/TaskDetail.vue'),
+      },
       {
         path: 'projects',
         name: 'Projects',
@@ -190,11 +281,6 @@ const routes: RouteRecordRaw[] = [
         path: 'permissions',
         name: 'GlobalPermissions',
         component: () => import('@/views/permissions/GlobalPermissions.vue'),
-      },
-      {
-        path: 'project/:projectKey/permissions',
-        name: 'ProjectPermissions',
-        component: () => import('@/views/permissions/ProjectPermissions.vue'),
       },
       // 权限模板
       {
@@ -237,11 +323,6 @@ const routes: RouteRecordRaw[] = [
         name: 'Webhooks',
         component: () => import('@/views/webhooks/Webhooks.vue'),
       },
-      {
-        path: 'project/:projectKey/webhooks',
-        name: 'ProjectWebhooks',
-        component: () => import('@/views/webhooks/Webhooks.vue'),
-      },
       // 后台任务
       {
         path: 'background_tasks',
@@ -253,66 +334,6 @@ const routes: RouteRecordRaw[] = [
         path: 'audit_logs',
         name: 'AuditLogs',
         component: () => import('@/views/audit-logs/AuditLogs.vue'),
-      },
-      // 项目活动
-      {
-        path: 'project/:projectKey/activity',
-        name: 'ProjectActivity',
-        component: () => import('@/views/project-activity/ProjectActivity.vue'),
-      },
-      // 项目信息
-      {
-        path: 'project/:projectKey/information',
-        name: 'ProjectInformation',
-        component: () => import('@/views/project-information/ProjectInformation.vue'),
-      },
-      // 项目链接
-      {
-        path: 'project/:projectKey/links',
-        name: 'ProjectLinks',
-        component: () => import('@/views/project-links/ProjectLinks.vue'),
-      },
-      // 项目新代码定义
-      {
-        path: 'project/:projectKey/new_code',
-        name: 'ProjectNewCode',
-        component: () => import('@/views/project-new-code/ProjectNewCode.vue'),
-      },
-      // 项目质量门
-      {
-        path: 'project/:projectKey/quality_gate',
-        name: 'ProjectQualityGate',
-        component: () => import('@/views/project-quality-gate/ProjectQualityGate.vue'),
-      },
-      // 项目质量配置
-      {
-        path: 'project/:projectKey/quality_profiles',
-        name: 'ProjectQualityProfiles',
-        component: () => import('@/views/project-quality-profiles/ProjectQualityProfiles.vue'),
-      },
-      // 项目删除
-      {
-        path: 'project/:projectKey/deletion',
-        name: 'ProjectDeletion',
-        component: () => import('@/views/project-deletion/ProjectDeletion.vue'),
-      },
-      // 项目导出
-      {
-        path: 'project/:projectKey/dump',
-        name: 'ProjectDump',
-        component: () => import('@/views/project-dump/ProjectDump.vue'),
-      },
-      // 项目分支管理
-      {
-        path: 'project/:projectKey/branches',
-        name: 'ProjectBranches',
-        component: () => import('@/views/projects/Branches.vue'),
-      },
-      // 项目 Key
-      {
-        path: 'project/:projectKey/key',
-        name: 'ProjectKey',
-        component: () => import('@/views/project-key/ProjectKey.vue'),
       },
       // 项目管理
       {
@@ -342,17 +363,6 @@ const routes: RouteRecordRaw[] = [
         path: '',
         name: 'Admin',
         component: () => import('@/views/admin/Admin.vue'),
-      },
-    ],
-  },
-  {
-    path: '/project/:projectKey/admin',
-    component: AdminContainer,
-    children: [
-      {
-        path: '',
-        name: 'ProjectAdmin',
-        component: () => import('@/views/admin/ProjectAdmin.vue'),
       },
     ],
   },

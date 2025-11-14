@@ -35,7 +35,7 @@ onMounted(() => {
 async function loadProjects() {
   loading.value = true
   try {
-    const data = await getJSON('/api/users/current')
+    await getJSON('/api/users/current')
     // 这里应该获取用户的项目列表
     projects.value = []
   } catch (error) {

@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useAppStore } from '@/stores/app'
 import { postJSON } from '@/libs/shared/utils/request'

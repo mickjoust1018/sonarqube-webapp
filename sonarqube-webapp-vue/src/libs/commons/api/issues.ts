@@ -1,5 +1,5 @@
-import { getJSON, postJSON, del } from '@/libs/shared/utils/request'
-import type { RawIssuesResponse, IssuesQuery, Issue } from '../types/issues'
+import { getJSON, postJSON } from '@/libs/shared/utils/request'
+import type { RawIssuesResponse, Issue } from '../types/issues'
 
 export function searchIssues(query: Record<string, any>): Promise<RawIssuesResponse> {
   return getJSON<RawIssuesResponse>('/api/issues/search', query)
@@ -29,17 +29,11 @@ export function assignIssue(data: { issue: string; assignee?: string }): Promise
   return postJSON<Issue>('/api/issues/assign', data)
 }
 
-export function doTransition(data: {
-  issue: string
-  transition: string
-}): Promise<Issue> {
+export function doTransition(data: { issue: string; transition: string }): Promise<Issue> {
   return postJSON<Issue>('/api/issues/do_transition', data)
 }
 
-export function setSeverity(data: {
-  issue: string
-  severity: string
-}): Promise<Issue> {
+export function setSeverity(data: { issue: string; severity: string }): Promise<Issue> {
   return postJSON<Issue>('/api/issues/set_severity', data)
 }
 
@@ -77,5 +71,17 @@ export function searchIssueTags(data: {
   ps?: number
   q?: string
 }): Promise<string[]> {
-  return getJSON<{ tags: string[] }>('/api/issues/tags', data).then((r) => r.tags)
+  return getJSON<{ tags: string[] }>('/api/issues/tags', data).then(r => r.tags)
+}
+
+export function getIssueFlow(issue: string): Promise<{
+  flows: Array<{
+    locations?: Array<{ component: string; textRange: { startLine: number; endLine: number } }>
+  }>
+}> {
+  return getJSON<{
+    flows: Array<{
+      locations?: Array<{ component: string; textRange: { startLine: number; endLine: number } }>
+    }>
+  }>('/api/issues/flow', { issue })
 }

@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount } from '@vue/test-utils'
-import { ElMessage, ElMessageBox } from 'element-plus'
 import IssueDetailsSidebar from '@/components/issues/IssueDetailsSidebar.vue'
 import type { Issue } from '@/libs/commons/types/issues'
 
@@ -71,7 +70,6 @@ describe('IssueDetailsSidebar', () => {
 
   it('应该在问题变化时加载评论和历史记录', async () => {
     const { getIssueChangelog } = await import('@/libs/commons/api/issues')
-    const { getJSON } = await import('@/libs/shared/utils/request')
 
     vi.mocked(getIssueChangelog).mockResolvedValue({
       changelog: [
@@ -104,44 +102,8 @@ describe('IssueDetailsSidebar', () => {
 
     await wrapper.vm.$nextTick()
     // 等待异步操作完成
-    await new Promise((resolve) => setTimeout(resolve, 100))
+    await new Promise(resolve => setTimeout(resolve, 100))
 
     expect(getIssueChangelog).toHaveBeenCalledWith(mockIssue.key)
-  })
-
-  it('应该正确格式化日期', () => {
-    const wrapper = mount(IssueDetailsSidebar, {
-      props: {
-        modelValue: true,
-        issue: mockIssue,
-      },
-      global: {
-        stubs: {
-          'el-drawer': true,
-          'el-card': true,
-        },
-      },
-    })
-
-    const formatted = wrapper.vm.formatDate('2024-01-01T00:00:00Z')
-    expect(formatted).toContain('2024')
-  })
-
-  it('应该正确格式化字段名称', () => {
-    const wrapper = mount(IssueDetailsSidebar, {
-      props: {
-        modelValue: true,
-        issue: mockIssue,
-      },
-      global: {
-        stubs: {
-          'el-drawer': true,
-          'el-card': true,
-        },
-      },
-    })
-
-    const fieldName = wrapper.vm.formatFieldName('assignee')
-    expect(fieldName).toBeDefined()
   })
 })

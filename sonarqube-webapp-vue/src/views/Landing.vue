@@ -28,6 +28,31 @@
               <el-link type="primary" @click="goToBranches">分支管理</el-link>
             </el-space>
           </div>
+
+          <!-- 演示数据说明 -->
+          <el-card class="demo-data-card" shadow="never">
+            <template #header>
+              <div class="card-header">
+                <el-icon :size="20" color="#409eff"><InfoFilled /></el-icon>
+                <span>演示数据说明</span>
+              </div>
+            </template>
+            <el-alert type="success" :closable="false" show-icon>
+              <p><strong>所有功能都配置了完整的 Mock 测试数据，可以直接体验：</strong></p>
+              <ul class="demo-data-list">
+                <li><strong>项目数据：</strong>my-project、web-app、api-service（3个示例项目）</li>
+                <li><strong>问题数据：</strong>包含评论、历史记录、标签的完整问题数据</li>
+                <li><strong>分支数据：</strong>main、develop、feature/new-feature 等分支</li>
+                <li><strong>代码数据：</strong>文件树和源代码数据，支持代码高亮</li>
+                <li><strong>度量数据：</strong>覆盖率、重复率、问题趋势等历史数据</li>
+                <li><strong>质量门数据：</strong>质量门状态和条件数据</li>
+              </ul>
+              <p style="margin-top: 12px">
+                <strong>建议访问路径：</strong>点击"查看项目" → 选择项目 → 查看项目概览 →
+                使用快速导航访问各个功能
+              </p>
+            </el-alert>
+          </el-card>
         </div>
       </el-main>
     </el-container>
@@ -36,7 +61,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { Folder, Star, Plus } from '@element-plus/icons-vue'
+import { Folder, Star, Plus, InfoFilled } from '@element-plus/icons-vue'
 
 const router = useRouter()
 
@@ -108,5 +133,29 @@ function goToBranches() {
   margin: 0 0 16px 0;
   color: #606266;
   font-size: 16px;
+}
+
+.demo-data-card {
+  margin-top: 40px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.demo-data-list {
+  margin: 12px 0;
+  padding-left: 20px;
+  line-height: 1.8;
+}
+
+.demo-data-list li {
+  margin: 4px 0;
 }
 </style>

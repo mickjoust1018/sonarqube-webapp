@@ -1,86 +1,44 @@
 <template>
-  <el-header class="global-header">
+  <div class="global-header" :class="{ 'with-shadow': hasShadow }">
     <div class="header-content">
       <div class="logo">
         <router-link to="/">
           <span>SonarQube</span>
         </router-link>
       </div>
-      <el-menu
-        mode="horizontal"
-        :default-active="activeMenu"
-        class="header-menu"
-        @select="handleMenuSelect"
-      >
-        <el-menu-item index="projects">
-          <el-icon><Document /></el-icon>
-          <span>项目</span>
-        </el-menu-item>
-        <el-menu-item index="issues">
-          <el-icon><Warning /></el-icon>
-          <span>问题</span>
-        </el-menu-item>
-        <el-menu-item index="security_hotspots">
-          <el-icon><Lock /></el-icon>
-          <span>安全热点</span>
-        </el-menu-item>
-        <el-menu-item index="quality_gates">
-          <el-icon><Check /></el-icon>
-          <span>质量门</span>
-        </el-menu-item>
-        <el-menu-item index="quality_profiles">
-          <el-icon><Setting /></el-icon>
-          <span>质量配置</span>
-        </el-menu-item>
-      </el-menu>
+      <GlobalNavMenu />
       <div class="header-actions">
-        <el-dropdown>
-          <span class="user-info">
-            <el-avatar :size="32" :src="userAvatar" />
-            <span class="username">{{ currentUser?.name || currentUser?.login }}</span>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item>
-                <router-link to="/account">账户</router-link>
-              </el-dropdown-item>
-              <el-dropdown-item divided>
-                <router-link to="/sessions/logout">退出</router-link>
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+        <GlobalSearch />
+        <GlobalNavUser />
       </div>
     </div>
-  </el-header>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { useAppStore } from '@/stores/app'
-import { Document, Warning, Lock, Check, Setting } from '@element-plus/icons-vue'
+import { ref, onMounted, onUnmounted } from 'vue'
+import GlobalNavMenu from '@/components/nav/GlobalNavMenu.vue'
+import GlobalNavUser from '@/components/nav/GlobalNavUser.vue'
+import GlobalSearch from '@/components/global-search/GlobalSearch.vue'
+import { throttle } from 'lodash-es'
 
-const route = useRoute()
-const router = useRouter()
-const appStore = useAppStore()
+const hasShadow = ref(false)
 
-const currentUser = computed(() => appStore.currentUser)
-const userAvatar = computed(() => currentUser.value?.avatar)
+function handleScroll() {
+  hasShadow.value = document.documentElement.scrollTop > 0
+}
 
-const activeMenu = computed(() => {
-  const path = route.path
-  if (path.startsWith('/projects')) return 'projects'
-  if (path.startsWith('/issues')) return 'issues'
-  if (path.startsWith('/security_hotspots')) return 'security_hotspots'
-  if (path.startsWith('/quality_gates')) return 'quality_gates'
-  if (path.startsWith('/quality_profiles')) return 'quality_profiles'
-  return ''
+const throttledHandleScroll = throttle(handleScroll, 100)
+
+onMounted(() => {
+  document.addEventListener('scroll', throttledHandleScroll)
+  handleScroll() // 初始检查
 })
 
-function handleMenuSelect(key: string) {
-  router.push(`/${key}`)
-}
+onUnmounted(() => {
+  document.removeEventListener('scroll', throttledHandleScroll)
+  throttledHandleScroll.cancel()
+})
 </script>
 
 <style scoped>
@@ -89,6 +47,15 @@ function handleMenuSelect(key: string) {
   background-color: #fff;
   border-bottom: 1px solid #e4e7ed;
   padding: 0;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: box-shadow 0.2s;
+}
+
+.global-header.with-shadow {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .header-content {
@@ -111,24 +78,10 @@ function handleMenuSelect(key: string) {
   font-weight: bold;
 }
 
-.header-menu {
-  flex: 1;
-  border-bottom: none;
-}
-
 .header-actions {
-  margin-left: auto;
-}
-
-.user-info {
   display: flex;
   align-items: center;
-  cursor: pointer;
-  gap: 8px;
-}
-
-.username {
-  font-size: 14px;
-  color: #303133;
+  gap: 12px;
+  margin-left: auto;
 }
 </style>

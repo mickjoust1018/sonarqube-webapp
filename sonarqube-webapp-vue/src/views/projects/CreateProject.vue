@@ -37,11 +37,7 @@
           </template>
           <el-form :model="form" :rules="rules" ref="formRef" label-width="120px">
             <el-form-item label="项目名称" prop="name">
-              <el-input
-                v-model="form.name"
-                placeholder="例如: My Project"
-                @blur="generateKey"
-              />
+              <el-input v-model="form.name" placeholder="例如: My Project" @blur="generateKey" />
               <div class="form-hint">项目的显示名称</div>
             </el-form-item>
             <el-form-item label="项目 Key" prop="key">
@@ -94,12 +90,7 @@
             </div>
           </template>
           <div class="alm-integration">
-            <el-alert
-              type="info"
-              :closable="false"
-              show-icon
-              style="margin-bottom: 20px"
-            >
+            <el-alert type="info" :closable="false" show-icon style="margin-bottom: 20px">
               <p>ALM 集成功能需要配置相应的 DevOps 平台连接。</p>
               <p>请先在系统设置中配置 {{ getModeLabel(selectedMode) }} 集成。</p>
             </el-alert>
@@ -128,18 +119,13 @@
                 <el-table-column prop="key" label="Key" />
                 <el-table-column label="操作" width="120">
                   <template #default="{ row }">
-                    <el-button type="primary" link @click="importAlmProject(row)">
-                      导入
-                    </el-button>
+                    <el-button type="primary" link @click="importAlmProject(row)"> 导入 </el-button>
                   </template>
                 </el-table-column>
               </el-table>
             </div>
 
-            <el-empty
-              v-else-if="almSettings.length === 0"
-              description="未配置 ALM 集成"
-            >
+            <el-empty v-else-if="almSettings.length === 0" description="未配置 ALM 集成">
               <el-button type="primary" @click="goToSettings">前往设置</el-button>
             </el-empty>
           </div>
@@ -182,7 +168,7 @@ const form = reactive({
   mainBranch: '',
 })
 
-const validateKey = (rule: any, value: string, callback: Function) => {
+const validateKey = (_rule: any, value: string, callback: Function) => {
   if (!value) {
     callback(new Error('请输入项目 Key'))
     return
@@ -197,7 +183,7 @@ const validateKey = (rule: any, value: string, callback: Function) => {
   }
   // 检查项目 Key 是否已存在
   checkProjectKeyExists(value)
-    .then((exists) => {
+    .then(exists => {
       if (exists) {
         callback(new Error('项目 Key 已存在，请使用其他 Key'))
       } else {
@@ -209,7 +195,7 @@ const validateKey = (rule: any, value: string, callback: Function) => {
     })
 }
 
-const validateName = (rule: any, value: string, callback: Function) => {
+const validateName = (_rule: any, value: string, callback: Function) => {
   if (!value) {
     callback(new Error('请输入项目名称'))
     return
@@ -225,7 +211,7 @@ const validateName = (rule: any, value: string, callback: Function) => {
   callback()
 }
 
-const validateMainBranch = (rule: any, value: string, callback: Function) => {
+const validateMainBranch = (_rule: any, value: string, callback: Function) => {
   if (value && !/^[a-zA-Z0-9\-_./]+$/.test(value)) {
     callback(new Error('主分支名称只能包含字母、数字、-、_、.、/'))
     return
@@ -299,7 +285,7 @@ function generateKey() {
 async function checkProjectKeyExists(key: string): Promise<boolean> {
   if (!key) return false
   try {
-    const result = await searchProjects({ q: key, ps: 1 })
+    const result = await searchProjects({ ps: 1 })
     return result.components.some((p: any) => p.key === key)
   } catch {
     return false
@@ -386,7 +372,7 @@ function goToSettings() {
 }
 
 function getModeLabel(mode: string): string {
-  const modeObj = creationModes.find((m) => m.value === mode)
+  const modeObj = creationModes.find(m => m.value === mode)
   return modeObj?.label || mode
 }
 

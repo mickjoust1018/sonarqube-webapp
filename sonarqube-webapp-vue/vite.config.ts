@@ -2,10 +2,30 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import { fileURLToPath, URL } from 'node:url'
+import type { Plugin } from 'vite'
+
+// Plugin to handle .well-known paths locally to avoid CSP violations
+const handleWellKnownPlugin = (): Plugin => {
+  return {
+    name: 'handle-well-known',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        // Handle .well-known paths locally to prevent CSP violations
+        // Chrome DevTools tries to connect to .well-known/appspecific/com.chrome.devtools.json
+        if (req.url?.startsWith('/.well-known/')) {
+          res.statusCode = 404
+          res.end()
+          return
+        }
+        next()
+      })
+    },
+  }
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [vue(), handleWellKnownPlugin()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -39,7 +59,14 @@ export default defineConfig({
           'vendor-vue': ['vue', 'vue-router', 'pinia'],
           'vendor-element': ['element-plus'],
           'vendor-query': ['@tanstack/vue-query'],
-          'vendor-d3': ['d3-array', 'd3-hierarchy', 'd3-scale', 'd3-selection', 'd3-shape', 'd3-zoom'],
+          'vendor-d3': [
+            'd3-array',
+            'd3-hierarchy',
+            'd3-scale',
+            'd3-selection',
+            'd3-shape',
+            'd3-zoom',
+          ],
           'vendor-utils': ['lodash-es', 'date-fns', 'highlight.js'],
         },
       },

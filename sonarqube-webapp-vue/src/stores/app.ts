@@ -29,12 +29,14 @@ export const useAppStore = defineStore('app', () => {
       appState.value = navigation as AppState
 
       // 并行加载数据
-      const [bundle, user, features, architectureOptIn] = await Promise.all([
+      const [bundle, user, features] = await Promise.all([
         loadL10nBundle(appState.value),
         getCurrentUser(),
         getAvailableFeatures(),
-        getValue({ key: SettingsKey.DesignAndArchitecture }),
       ])
+
+      // 获取架构选项（但不使用）
+      await getValue({ key: SettingsKey.DesignAndArchitecture }).catch(() => undefined)
 
       l10nBundle.value = bundle
       currentUser.value = user

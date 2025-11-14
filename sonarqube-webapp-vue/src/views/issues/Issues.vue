@@ -1,106 +1,108 @@
 <template>
   <div class="issues">
-    <el-container>
-      <el-header>
-        <div class="header">
-          <h2>{{ route.params.projectKey ? `项目问题 - ${route.params.projectKey}` : '问题' }}</h2>
-          <el-button type="primary" @click="showBulkChange = true" :disabled="checkedIssues.length === 0">
-            批量操作 ({{ checkedIssues.length }})
-          </el-button>
-        </div>
-      </el-header>
-      <el-main>
-        <div class="filters">
-          <el-form :inline="true" :model="filters">
-            <el-form-item label="严重程度">
-              <el-select
-                v-model="filters.severities"
-                placeholder="请选择"
-                clearable
-                multiple
-                style="width: 200px"
-              >
-                <el-option label="阻断" value="BLOCKER" />
-                <el-option label="严重" value="CRITICAL" />
-                <el-option label="主要" value="MAJOR" />
-                <el-option label="次要" value="MINOR" />
-                <el-option label="提示" value="INFO" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="状态">
-              <el-select
-                v-model="filters.statuses"
-                placeholder="请选择"
-                clearable
-                multiple
-                style="width: 200px"
-              >
-                <el-option label="打开" value="OPEN" />
-                <el-option label="已确认" value="CONFIRMED" />
-                <el-option label="已解决" value="FIXED" />
-                <el-option label="已接受" value="ACCEPTED" />
-                <el-option label="误报" value="FALSE_POSITIVE" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="类型">
-              <el-select
-                v-model="filters.types"
-                placeholder="请选择"
-                clearable
-                multiple
-                style="width: 200px"
-              >
-                <el-option label="代码异味" value="CODE_SMELL" />
-                <el-option label="漏洞" value="VULNERABILITY" />
-                <el-option label="Bug" value="BUG" />
-              </el-select>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="search">搜索</el-button>
-              <el-button @click="reset">重置</el-button>
-            </el-form-item>
-          </el-form>
-        </div>
-        <el-table
-          :data="issues"
-          v-loading="loading"
-          style="width: 100%"
-          @selection-change="handleSelectionChange"
+    <div class="page-header">
+      <div class="header">
+        <h2>{{ (route.params.id || route.params.projectKey) ? `项目问题 - ${route.params.id || route.params.projectKey}` : '问题' }}</h2>
+        <el-button
+          type="primary"
+          @click="showBulkChange = true"
+          :disabled="checkedIssues.length === 0"
         >
-          <el-table-column type="selection" width="55" />
-          <el-table-column prop="key" label="Key" width="200" />
-          <el-table-column prop="message" label="消息" min-width="300" />
-          <el-table-column prop="severity" label="严重程度" width="120">
-            <template #default="{ row }">
-              <el-tag :type="getSeverityType(row.severity)">{{ row.severity }}</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="status" label="状态" width="120">
-            <template #default="{ row }">
-              <el-tag :type="getStatusType(row.status)">{{ row.status }}</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="type" label="类型" width="120" />
-          <el-table-column prop="component" label="组件" />
-          <el-table-column prop="line" label="行号" width="80" />
-          <el-table-column label="操作" width="200" fixed="right">
-            <template #default="{ row }">
-              <el-button link type="primary" @click="viewIssue(row)">查看</el-button>
-              <el-button link type="primary" @click="assignIssue(row)">分配</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <el-pagination
-          v-model:current-page="pagination.pageIndex"
-          v-model:page-size="pagination.pageSize"
-          :total="pagination.total"
-          :page-sizes="[20, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handlePageChange"
-        />
-      </el-main>
-    </el-container>
+          批量操作 ({{ checkedIssues.length }})
+        </el-button>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="filters">
+        <el-form :inline="true" :model="filters">
+          <el-form-item label="严重程度">
+            <el-select
+              v-model="filters.severities"
+              placeholder="请选择"
+              clearable
+              multiple
+              style="width: 200px"
+            >
+              <el-option label="阻断" value="BLOCKER" />
+              <el-option label="严重" value="CRITICAL" />
+              <el-option label="主要" value="MAJOR" />
+              <el-option label="次要" value="MINOR" />
+              <el-option label="提示" value="INFO" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="状态">
+            <el-select
+              v-model="filters.statuses"
+              placeholder="请选择"
+              clearable
+              multiple
+              style="width: 200px"
+            >
+              <el-option label="打开" value="OPEN" />
+              <el-option label="已确认" value="CONFIRMED" />
+              <el-option label="已解决" value="FIXED" />
+              <el-option label="已接受" value="ACCEPTED" />
+              <el-option label="误报" value="FALSE_POSITIVE" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="类型">
+            <el-select
+              v-model="filters.types"
+              placeholder="请选择"
+              clearable
+              multiple
+              style="width: 200px"
+            >
+              <el-option label="代码异味" value="CODE_SMELL" />
+              <el-option label="漏洞" value="VULNERABILITY" />
+              <el-option label="Bug" value="BUG" />
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="search">搜索</el-button>
+            <el-button @click="reset">重置</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+      <el-table
+        :data="issues"
+        v-loading="loading"
+        style="width: 100%"
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column type="selection" width="55" />
+        <el-table-column prop="key" label="Key" width="200" />
+        <el-table-column prop="message" label="消息" min-width="300" />
+        <el-table-column prop="severity" label="严重程度" width="120">
+          <template #default="{ row }">
+            <el-tag :type="getSeverityType(row.severity)">{{ row.severity }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" label="状态" width="120">
+          <template #default="{ row }">
+            <el-tag :type="getStatusType(row.status)">{{ row.status }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="type" label="类型" width="120" />
+        <el-table-column prop="component" label="组件" />
+        <el-table-column prop="line" label="行号" width="80" />
+        <el-table-column label="操作" width="200" fixed="right">
+          <template #default="{ row }">
+            <el-button link type="primary" @click="viewIssue(row)">查看</el-button>
+            <el-button link type="primary" @click="assignIssue(row)">分配</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        v-model:current-page="pagination.pageIndex"
+        v-model:page-size="pagination.pageSize"
+        :total="pagination.total"
+        :page-sizes="[20, 50, 100]"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handlePageChange"
+      />
+    </div>
 
     <!-- 批量操作对话框 -->
     <el-dialog v-model="showBulkChange" title="批量操作" width="500px">
@@ -143,7 +145,10 @@
         <el-form-item v-if="bulkChangeForm.action === 'assign'" label="分配给">
           <el-input v-model="bulkChangeForm.assignee" placeholder="用户名" />
         </el-form-item>
-        <el-form-item v-if="bulkChangeForm.action === 'add_tags' || bulkChangeForm.action === 'remove_tags'" label="标签">
+        <el-form-item
+          v-if="bulkChangeForm.action === 'add_tags' || bulkChangeForm.action === 'remove_tags'"
+          label="标签"
+        >
           <el-input v-model="bulkChangeForm.tags" placeholder="多个标签用逗号分隔" />
         </el-form-item>
       </el-form>
@@ -163,11 +168,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { searchIssues, bulkChange } from '@/libs/commons/api/issues'
-import type { Issue, IssueSeverity, IssueStatus } from '@/libs/commons/types/issues'
+import type { Issue } from '@/libs/commons/types/issues'
 import IssueDetailsSidebar from '@/components/issues/IssueDetailsSidebar.vue'
 
 const route = useRoute()
@@ -220,8 +225,9 @@ async function loadIssues() {
     if (filters.types.length > 0) {
       params.types = filters.types.join(',')
     }
-    if (route.params.projectKey) {
-      params.componentKeys = route.params.projectKey
+    const projectKey = route.params.id || route.params.projectKey
+    if (projectKey) {
+      params.componentKeys = projectKey as string
     }
 
     const data = await searchIssues(params)
@@ -292,19 +298,19 @@ function viewIssue(issue: Issue) {
 }
 
 function handleIssueUpdated(issue: Issue) {
-  const index = issues.value.findIndex((i) => i.key === issue.key)
+  const index = issues.value.findIndex(i => i.key === issue.key)
   if (index !== -1) {
     issues.value[index] = issue
   }
   loadIssues()
 }
 
-function assignIssue(issue: Issue) {
+function assignIssue(_issue: Issue) {
   ElMessageBox.prompt('请输入要分配的用户名', '分配问题', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
   })
-    .then(({ value }) => {
+    .then(() => {
       // TODO: 调用分配 API
       ElMessage.success('分配成功')
       loadIssues()
@@ -320,8 +326,19 @@ async function handleBulkChange() {
 
   bulkChanging.value = true
   try {
-    const data: Record<string, any> = {
-      issues: checkedIssues.value.map((i) => i.key).join(','),
+    const data: {
+      issues: string
+      actions?: string
+      add_tags?: string
+      assign?: string
+      comment?: string
+      do_transition?: string
+      remove_tags?: string
+      sendNotifications?: boolean
+      set_severity?: string
+      set_type?: string
+    } = {
+      issues: checkedIssues.value.map(i => i.key).join(','),
     }
 
     switch (bulkChangeForm.action) {
@@ -389,6 +406,17 @@ async function handleBulkChange() {
 <style scoped>
 .issues {
   padding: 20px;
+  min-height: 100%;
+}
+
+.page-header {
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e4e7ed;
+}
+
+.page-content {
+  padding: 0;
 }
 
 .header {

@@ -25,9 +25,7 @@
                 <li>✅ 问题分配</li>
                 <li>✅ 状态转换</li>
               </ul>
-              <el-button type="primary" style="width: 100%; margin-top: 12px">
-                查看问题
-              </el-button>
+              <el-button type="primary" style="width: 100%; margin-top: 12px"> 查看问题 </el-button>
             </el-card>
           </el-col>
 
@@ -47,9 +45,7 @@
                 <li>✅ 质量门状态</li>
                 <li>✅ 最近活动</li>
               </ul>
-              <el-button type="primary" style="width: 100%; margin-top: 12px">
-                查看概览
-              </el-button>
+              <el-button type="primary" style="width: 100%; margin-top: 12px"> 查看概览 </el-button>
             </el-card>
           </el-col>
 
@@ -70,9 +66,7 @@
                 <li>✅ 分支切换</li>
                 <li>✅ 代码高亮</li>
               </ul>
-              <el-button type="primary" style="width: 100%; margin-top: 12px">
-                查看代码
-              </el-button>
+              <el-button type="primary" style="width: 100%; margin-top: 12px"> 查看代码 </el-button>
             </el-card>
           </el-col>
 
@@ -92,9 +86,7 @@
                 <li>✅ 设为主分支</li>
                 <li>✅ 保护/取消保护</li>
               </ul>
-              <el-button type="primary" style="width: 100%; margin-top: 12px">
-                管理分支
-              </el-button>
+              <el-button type="primary" style="width: 100%; margin-top: 12px"> 管理分支 </el-button>
             </el-card>
           </el-col>
 
@@ -113,9 +105,7 @@
                 <li>✅ Key自动生成</li>
                 <li>✅ ALM集成占位</li>
               </ul>
-              <el-button type="primary" style="width: 100%; margin-top: 12px">
-                创建项目
-              </el-button>
+              <el-button type="primary" style="width: 100%; margin-top: 12px"> 创建项目 </el-button>
             </el-card>
           </el-col>
 
@@ -134,9 +124,7 @@
                 <li>✅ 项目筛选</li>
                 <li>✅ 项目详情</li>
               </ul>
-              <el-button type="primary" style="width: 100%; margin-top: 12px">
-                查看项目
-              </el-button>
+              <el-button type="primary" style="width: 100%; margin-top: 12px"> 查看项目 </el-button>
             </el-card>
           </el-col>
         </el-row>
@@ -146,12 +134,7 @@
           <template #header>
             <h3>📊 测试数据说明</h3>
           </template>
-          <el-alert
-            type="info"
-            :closable="false"
-            show-icon
-            style="margin-bottom: 20px"
-          >
+          <el-alert type="info" :closable="false" show-icon style="margin-bottom: 20px">
             <p>所有功能都配置了完整的 Mock 测试数据，包括：</p>
             <ul style="margin: 10px 0; padding-left: 20px">
               <li>项目数据（my-project, web-app, api-service）</li>
@@ -176,14 +159,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import {
-  Warning,
-  TrendCharts,
-  Document,
-  Connection,
-  Plus,
-  Folder,
-} from '@element-plus/icons-vue'
+import { Warning, TrendCharts, Document, Connection, Plus, Folder } from '@element-plus/icons-vue'
 
 const router = useRouter()
 

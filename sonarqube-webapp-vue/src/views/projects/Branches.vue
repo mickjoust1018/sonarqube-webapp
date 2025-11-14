@@ -57,12 +57,7 @@
             >
               {{ t('branches.setAsMain') }}
             </el-button>
-            <el-button
-              type="primary"
-              link
-              size="small"
-              @click="handleToggleProtection(row)"
-            >
+            <el-button type="primary" link size="small" @click="handleToggleProtection(row)">
               {{ row.excludedFromPurge ? t('branches.unprotect') : t('branches.protect') }}
             </el-button>
             <el-button
@@ -117,7 +112,7 @@ import {
 const { t } = useI18n()
 const route = useRoute()
 
-const projectKey = route.params.projectKey as string
+const projectKey = (route.params.id || route.params.projectKey) as string
 const loading = ref(false)
 const branches = ref<Branch[]>([])
 const showCreateDialog = ref(false)

@@ -112,7 +112,7 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
-const projectKey = computed(() => route.params.projectKey as string)
+const projectKey = computed(() => (route.params.id || route.params.projectKey) as string)
 const selectedBranch = ref<string>('main')
 const branches = ref<Branch[]>([])
 const components = ref<ComponentMeasure[]>([])
@@ -135,12 +135,29 @@ onMounted(() => {
 
 watch(
   () => route.query.component,
-  (component) => {
+  component => {
     if (component) {
-      const comp = components.value.find((c) => c.key === component)
+      const comp = components.value.find((c: ComponentMeasure) => c.key === component)
       if (comp) {
         selectComponent(comp)
       }
+    }
+  }
+)
+
+watch(
+  () => route.query.line,
+  line => {
+    if (line && selectedComponent.value) {
+      // 延迟一下，等待 SourceViewer 加载完成
+      setTimeout(() => {
+        const lineNum = parseInt(String(line))
+        if (!isNaN(lineNum)) {
+          // 触发滚动到指定行
+          const event = new CustomEvent('scroll-to-line', { detail: { line: lineNum } })
+          window.dispatchEvent(event)
+        }
+      }, 500)
     }
   }
 )
@@ -151,7 +168,7 @@ async function loadBranches() {
     const data = await getBranches(projectKey.value)
     branches.value = data
     if (data.length > 0) {
-      const mainBranch = data.find((b) => b.isMain)
+      const mainBranch = data.find(b => b.isMain)
       selectedBranch.value = mainBranch?.name || data[0].name
     }
   } catch (error) {
@@ -170,7 +187,7 @@ async function loadComponentTree() {
     baseComponent.value = data.baseComponent
     components.value = data.components
     if (route.query.component) {
-      const comp = components.value.find((c) => c.key === route.query.component)
+      const comp = components.value.find((c: ComponentMeasure) => c.key === route.query.component)
       if (comp) {
         selectComponent(comp)
       }

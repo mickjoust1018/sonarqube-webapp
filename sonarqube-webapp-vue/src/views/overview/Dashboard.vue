@@ -35,7 +35,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getJSON } from '@/libs/shared/utils/request'
 
 const stats = ref({
   projects: 0,

@@ -65,6 +65,7 @@ export interface Issue {
     updatable: boolean
   }>
   actions?: string[]
+  tags?: string[]
 }
 
 export interface RawIssuesResponse {

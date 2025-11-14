@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
-import { Folder, Document, Search } from '@element-plus/icons-vue'
+import { Folder, Document } from '@element-plus/icons-vue'
 import { useI18n } from '@/composables/useI18n'
 import type { ComponentMeasure } from '@/libs/commons/api/components'
 
@@ -79,7 +79,7 @@ const treeData = computed(() => {
     const roots: TreeNode[] = []
 
     // 创建所有节点
-    components.forEach((comp) => {
+    components.forEach(comp => {
       const node: TreeNode = {
         key: comp.key,
         label: comp.name,
@@ -92,7 +92,7 @@ const treeData = computed(() => {
     })
 
     // 构建树结构
-    components.forEach((comp) => {
+    components.forEach(comp => {
       const node = map.get(comp.key)!
       const parentKey = comp.key.split(':').slice(0, -1).join(':')
 
@@ -118,13 +118,13 @@ function filterNode(value: string, data: TreeNode) {
   return data.label.toLowerCase().includes(value.toLowerCase())
 }
 
-watch(searchText, (val) => {
+watch(searchText, val => {
   treeRef.value?.filter(val)
 })
 
 function handleNodeClick(data: TreeNode) {
   if (data.qualifier === 'FIL') {
-    const component = props.components.find((c) => c.key === data.key)
+    const component = props.components.find(c => c.key === data.key)
     if (component) {
       emit('select', component)
     }

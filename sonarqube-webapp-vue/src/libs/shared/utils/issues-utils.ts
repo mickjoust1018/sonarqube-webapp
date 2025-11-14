@@ -77,7 +77,9 @@ export function parseQuery(params: Record<string, string | string[]>): IssuesQue
     query.assigned = params.assigned === 'true'
   }
   if (params.assignees) {
-    query.assignees = Array.isArray(params.assignees) ? params.assignees : params.assignees.split(',')
+    query.assignees = Array.isArray(params.assignees)
+      ? params.assignees
+      : params.assignees.split(',')
   }
   if (params.author) {
     query.author = Array.isArray(params.author) ? params.author : params.author.split(',')
@@ -88,13 +90,19 @@ export function parseQuery(params: Record<string, string | string[]>): IssuesQue
       : params.componentKeys.split(',')
   }
   if (params.createdAfter) {
-    query.createdAfter = Array.isArray(params.createdAfter) ? params.createdAfter[0] : params.createdAfter
+    query.createdAfter = Array.isArray(params.createdAfter)
+      ? params.createdAfter[0]
+      : params.createdAfter
   }
   if (params.createdBefore) {
-    query.createdBefore = Array.isArray(params.createdBefore) ? params.createdBefore[0] : params.createdBefore
+    query.createdBefore = Array.isArray(params.createdBefore)
+      ? params.createdBefore[0]
+      : params.createdBefore
   }
   if (params.createdInLast) {
-    query.createdInLast = Array.isArray(params.createdInLast) ? params.createdInLast[0] : params.createdInLast
+    query.createdInLast = Array.isArray(params.createdInLast)
+      ? params.createdInLast[0]
+      : params.createdInLast
   }
   if (params.cwe) {
     query.cwe = Array.isArray(params.cwe) ? params.cwe : params.cwe.split(',')
@@ -106,22 +114,30 @@ export function parseQuery(params: Record<string, string | string[]>): IssuesQue
     query.issues = Array.isArray(params.issues) ? params.issues : params.issues.split(',')
   }
   if (params.languages) {
-    query.languages = Array.isArray(params.languages) ? params.languages : params.languages.split(',')
+    query.languages = Array.isArray(params.languages)
+      ? params.languages
+      : params.languages.split(',')
   }
   if (params.owaspTop10) {
-    query.owaspTop10 = Array.isArray(params.owaspTop10) ? params.owaspTop10 : params.owaspTop10.split(',')
+    query.owaspTop10 = Array.isArray(params.owaspTop10)
+      ? params.owaspTop10
+      : params.owaspTop10.split(',')
   }
   if (params.projects) {
     query.projects = Array.isArray(params.projects) ? params.projects : params.projects.split(',')
   }
   if (params.resolutions) {
-    query.resolutions = Array.isArray(params.resolutions) ? params.resolutions : params.resolutions.split(',')
+    query.resolutions = Array.isArray(params.resolutions)
+      ? params.resolutions
+      : params.resolutions.split(',')
   }
   if (params.rules) {
     query.rules = Array.isArray(params.rules) ? params.rules : params.rules.split(',')
   }
   if (params.severities) {
-    query.severities = Array.isArray(params.severities) ? params.severities : params.severities.split(',')
+    query.severities = Array.isArray(params.severities)
+      ? params.severities
+      : params.severities.split(',')
   }
   if (params.sonarsourceSecurity) {
     query.sonarsourceSecurity = Array.isArray(params.sonarsourceSecurity)

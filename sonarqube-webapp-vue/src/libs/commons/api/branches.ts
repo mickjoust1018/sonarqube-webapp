@@ -20,14 +20,18 @@ export interface PullRequest extends Branch {
 
 export function getBranches(project: string): Promise<Branch[]> {
   return getJSON<{ branches: Branch[] }>('/api/project_branches/list', { project }).then(
-    (r) => r.branches
+    r => r.branches
   )
 }
 
+export function listBranches(params: { project: string }): Promise<{ branches: Branch[] }> {
+  return getJSON<{ branches: Branch[] }>('/api/project_branches/list', params)
+}
+
 export function getPullRequests(project: string): Promise<PullRequest[]> {
-  return getJSON<{ pullRequests: PullRequest[] }>('/api/project_pull_requests/list', { project }).then(
-    (r) => r.pullRequests
-  )
+  return getJSON<{ pullRequests: PullRequest[] }>('/api/project_pull_requests/list', {
+    project,
+  }).then(r => r.pullRequests)
 }
 
 export function deleteBranch(data: { branch: string; project: string }): Promise<void> {

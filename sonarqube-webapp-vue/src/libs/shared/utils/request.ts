@@ -15,7 +15,7 @@ declare global {
 const ENABLE_MOCK = import.meta.env.DEV && import.meta.env.VITE_ENABLE_MOCK !== 'false'
 
 // 延迟函数，模拟网络延迟
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 // 创建 axios 实例
 const apiClient: AxiosInstance = axios.create({
@@ -28,7 +28,7 @@ const apiClient: AxiosInstance = axios.create({
 
 // 请求拦截器
 apiClient.interceptors.request.use(
-  async (config) => {
+  async config => {
     // Mock 数据拦截
     if (ENABLE_MOCK && config.url) {
       const url = config.url
@@ -50,7 +50,7 @@ apiClient.interceptors.request.use(
     // 可以在这里添加 token 等认证信息
     return config
   },
-  (error) => {
+  error => {
     return Promise.reject(error)
   }
 )
@@ -60,7 +60,7 @@ apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
     return response
   },
-  (error) => {
+  error => {
     // 处理 Mock 数据
     if (error.__isMock) {
       return Promise.resolve({
@@ -103,25 +103,29 @@ apiClient.interceptors.response.use(
 export default apiClient
 
 export function get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
-  return apiClient.get(url, config).then((res) => res.data)
+  return apiClient.get(url, config).then(res => res.data)
 }
 
 export function post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-  return apiClient.post(url, data, config).then((res) => res.data)
+  return apiClient.post(url, data, config).then(res => res.data)
 }
 
 export function put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-  return apiClient.put(url, data, config).then((res) => res.data)
+  return apiClient.put(url, data, config).then(res => res.data)
 }
 
 export function del<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
-  return apiClient.delete(url, config).then((res) => res.data)
+  return apiClient.delete(url, config).then(res => res.data)
 }
 
 export function getJSON<T = any>(url: string, params?: any): Promise<T> {
-  return apiClient.get(url, { params }).then((res) => res.data)
+  return apiClient.get(url, { params }).then(res => res.data)
 }
 
 export function postJSON<T = any>(url: string, data?: any): Promise<T> {
-  return apiClient.post(url, data).then((res) => res.data)
+  return apiClient.post(url, data).then(res => res.data)
+}
+
+export function putJSON<T = any>(url: string, data?: any): Promise<T> {
+  return apiClient.put(url, data).then(res => res.data)
 }

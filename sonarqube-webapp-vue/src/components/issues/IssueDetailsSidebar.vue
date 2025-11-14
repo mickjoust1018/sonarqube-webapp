@@ -24,19 +24,58 @@
             <el-tag :type="getStatusType(issue.status)">{{ issue.status }}</el-tag>
           </el-descriptions-item>
           <el-descriptions-item label="类型">{{ issue.type }}</el-descriptions-item>
-          <el-descriptions-item label="组件">{{ issue.component }}</el-descriptions-item>
-          <el-descriptions-item label="行号" v-if="issue.line">{{ issue.line }}</el-descriptions-item>
+          <el-descriptions-item label="组件">
+            <div style="display: flex; align-items: center; gap: 8px">
+              <span>{{ issue.component }}</span>
+              <el-button v-if="issue.line" link type="primary" size="small" @click="viewCode">
+                <el-icon><Document /></el-icon>
+                查看代码
+              </el-button>
+            </div>
+          </el-descriptions-item>
+          <el-descriptions-item label="行号" v-if="issue.line">{{
+            issue.line
+          }}</el-descriptions-item>
           <el-descriptions-item label="创建时间">
             {{ formatDate(issue.creationDate) }}
           </el-descriptions-item>
           <el-descriptions-item label="分配人" v-if="issue.assignee">
             {{ issue.assignee }}
           </el-descriptions-item>
+          <el-descriptions-item label="规则">
+            <el-button link type="primary" @click="showRuleDetails(issue.rule)">
+              {{ issue.rule }}
+            </el-button>
+          </el-descriptions-item>
+          <el-descriptions-item label="标签" v-if="issue.tags && issue.tags.length > 0">
+            <div class="tags-container">
+              <el-tag
+                v-for="tag in issue.tags"
+                :key="tag"
+                size="small"
+                style="margin-right: 8px; margin-bottom: 4px"
+              >
+                {{ tag }}
+              </el-tag>
+              <el-button link type="primary" size="small" @click="showTagsDialog = true">
+                管理标签
+              </el-button>
+            </div>
+          </el-descriptions-item>
+          <el-descriptions-item label="标签" v-else>
+            <el-button link type="primary" size="small" @click="showTagsDialog = true">
+              添加标签
+            </el-button>
+          </el-descriptions-item>
         </el-descriptions>
       </el-card>
 
       <!-- 操作按钮 -->
-      <el-card class="issue-actions-card" shadow="never" v-if="issue.actions && issue.actions.length > 0">
+      <el-card
+        class="issue-actions-card"
+        shadow="never"
+        v-if="issue.actions && issue.actions.length > 0"
+      >
         <template #header>
           <h3>{{ t('issueDetails.actions') }}</h3>
         </template>
@@ -54,10 +93,7 @@
           >
             更改严重程度
           </el-button>
-          <el-button
-            v-if="issue.actions.includes('set_type')"
-            @click="showTypeDialog = true"
-          >
+          <el-button v-if="issue.actions.includes('set_type')" @click="showTypeDialog = true">
             更改类型
           </el-button>
           <el-button
@@ -67,10 +103,7 @@
           >
             添加评论
           </el-button>
-          <el-button
-            v-if="canTransition"
-            @click="showTransitionDialog = true"
-          >
+          <el-button v-if="canTransition" @click="showTransitionDialog = true">
             状态转换
           </el-button>
         </div>
@@ -82,6 +115,12 @@
           <h3>{{ t('issueDetails.activity') }}</h3>
         </template>
         <el-tabs v-model="activeTab">
+          <el-tab-pane label="代码上下文" name="context">
+            <IssueCodeContext :issue="issue" />
+          </el-tab-pane>
+          <el-tab-pane label="问题流" name="flows">
+            <IssueFlowViewer :flows="flows" :issue-key="issue?.key" />
+          </el-tab-pane>
           <el-tab-pane :label="t('issueDetails.comments')" name="comments">
             <div class="comments-section">
               <el-button
@@ -96,11 +135,7 @@
                 <el-empty :description="t('issueDetails.noComments')" />
               </div>
               <div v-else>
-                <div
-                  v-for="comment in comments"
-                  :key="comment.key"
-                  class="comment-item"
-                >
+                <div v-for="comment in comments" :key="comment.key" class="comment-item">
                   <div class="comment-header">
                     <el-avatar :size="32">{{ comment.login.charAt(0).toUpperCase() }}</el-avatar>
                     <div class="comment-info">
@@ -126,7 +161,10 @@
                       </el-button>
                     </div>
                   </div>
-                  <div v-if="editingComment && editingComment.key === comment.key" class="comment-edit-form">
+                  <div
+                    v-if="editingComment && editingComment.key === comment.key"
+                    class="comment-edit-form"
+                  >
                     <el-input
                       v-if="editingComment"
                       v-model="editingComment.text"
@@ -136,7 +174,12 @@
                     />
                     <div class="comment-edit-actions">
                       <el-button size="small" @click="cancelEditComment">取消</el-button>
-                      <el-button size="small" type="primary" @click="saveEditComment" :loading="updating">
+                      <el-button
+                        size="small"
+                        type="primary"
+                        @click="saveEditComment"
+                        :loading="updating"
+                      >
                         保存
                       </el-button>
                     </div>
@@ -148,7 +191,7 @@
           </el-tab-pane>
           <el-tab-pane :label="t('issueDetails.history')" name="history">
             <div v-if="changelog.length === 0" class="empty-state">
-                <el-empty :description="t('issueDetails.noHistory')" />
+              <el-empty :description="t('issueDetails.noHistory')" />
             </div>
             <el-timeline v-else>
               <el-timeline-item
@@ -160,7 +203,9 @@
                 <el-card class="history-item-card" shadow="hover">
                   <div class="history-item">
                     <div class="history-header">
-                      <el-avatar :size="24">{{ (item.user || '系统').charAt(0).toUpperCase() }}</el-avatar>
+                      <el-avatar :size="24">{{
+                        (item.user || '系统').charAt(0).toUpperCase()
+                      }}</el-avatar>
                       <strong class="history-user">{{ item.user || '系统' }}</strong>
                       <el-tag v-if="item.action" size="small" type="info">{{ item.action }}</el-tag>
                     </div>
@@ -191,7 +236,7 @@
     <!-- 分配对话框 -->
     <el-dialog v-model="showAssignDialog" :title="t('issueDetails.assign')" width="400px">
       <el-form>
-            <el-form-item :label="t('issueDetails.assignTo')">
+        <el-form-item :label="t('issueDetails.assignTo')">
           <el-autocomplete
             v-model="assignForm.assignee"
             :fetch-suggestions="searchUsers"
@@ -287,6 +332,57 @@
         <el-button type="primary" @click="handleAddComment" :loading="commenting">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 管理标签对话框 -->
+    <el-dialog v-model="showTagsDialog" title="管理标签" width="500px" @open="loadAvailableTags">
+      <el-form>
+        <el-form-item label="标签">
+          <el-select
+            v-model="tagsForm.tags"
+            multiple
+            filterable
+            allow-create
+            default-first-option
+            :reserve-keyword="false"
+            placeholder="选择或输入标签"
+            style="width: 100%"
+            :loading="managingTags"
+          >
+            <el-option v-for="tag in filteredAvailableTags" :key="tag" :label="tag" :value="tag" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showTagsDialog = false">取消</el-button>
+        <el-button type="primary" @click="handleSetTags" :loading="managingTags">确定</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 规则详情对话框 -->
+    <el-dialog v-model="showRuleDetailsDialog" title="规则详情" width="600px" v-if="ruleDetails">
+      <el-descriptions :column="1" border>
+        <el-descriptions-item label="规则 Key">{{ ruleDetails.key }}</el-descriptions-item>
+        <el-descriptions-item label="名称">{{ ruleDetails.name }}</el-descriptions-item>
+        <el-descriptions-item label="严重程度">
+          <el-tag :type="getSeverityType(ruleDetails.severity)">{{ ruleDetails.severity }}</el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item label="类型">{{ ruleDetails.type }}</el-descriptions-item>
+        <el-descriptions-item label="描述">
+          <div v-html="ruleDetails.htmlDescription"></div>
+        </el-descriptions-item>
+        <el-descriptions-item label="说明" v-if="ruleDetails.htmlNote">
+          <div v-html="ruleDetails.htmlNote"></div>
+        </el-descriptions-item>
+        <el-descriptions-item label="标签" v-if="ruleDetails.tags && ruleDetails.tags.length > 0">
+          <el-tag v-for="tag in ruleDetails.tags" :key="tag" size="small" style="margin-right: 8px">
+            {{ tag }}
+          </el-tag>
+        </el-descriptions-item>
+      </el-descriptions>
+      <template #footer>
+        <el-button @click="showRuleDetailsDialog = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </el-drawer>
 </template>
 
@@ -297,6 +393,7 @@ import DOMPurify from 'dompurify'
 import { useI18n } from '@/composables/useI18n'
 
 const { t } = useI18n()
+const router = useRouter()
 import {
   assignIssue,
   setSeverity,
@@ -306,11 +403,18 @@ import {
   deleteIssueComment,
   editIssueComment,
   getIssueChangelog,
+  getIssueFlow,
+  setTags,
+  searchIssueTags,
 } from '@/libs/commons/api/issues'
+import { getRuleDetails } from '@/libs/commons/api/rules'
+import IssueFlowViewer from './IssueFlowViewer.vue'
+import IssueCodeContext from './IssueCodeContext.vue'
 import type { Issue } from '@/libs/commons/types/issues'
 import { format } from 'date-fns'
-import { ArrowRight } from '@element-plus/icons-vue'
+import { ArrowRight, Document } from '@element-plus/icons-vue'
 import { getJSON } from '@/libs/shared/utils/request'
+import { useRouter } from 'vue-router'
 
 interface Props {
   modelValue: boolean
@@ -325,20 +429,29 @@ const emit = defineEmits<{
 
 const visible = computed({
   get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val),
+  set: val => emit('update:modelValue', val),
 })
 
 const activeTab = ref('comments')
 const comments = ref<any[]>([])
 const changelog = ref<any[]>([])
+const flows = ref<
+  Array<{
+    locations?: Array<{ component: string; textRange: { startLine: number; endLine: number } }>
+  }>
+>([])
 const showAssignDialog = ref(false)
 const showSeverityDialog = ref(false)
 const showTypeDialog = ref(false)
 const showTransitionDialog = ref(false)
 const showCommentDialog = ref(false)
+const showTagsDialog = ref(false)
+const showRuleDetailsDialog = ref(false)
 const assigning = ref(false)
 const updating = ref(false)
 const commenting = ref(false)
+const managingTags = ref(false)
+const ruleDetails = ref<any>(null)
 
 const assignForm = ref({ assignee: '' })
 const severityForm = ref({ severity: '' })
@@ -347,6 +460,9 @@ const transitionForm = ref({ transition: '' })
 const commentForm = ref({ text: '' })
 const editingComment = ref<{ key: string; text: string } | null>(null)
 const userSearchCache = ref<Map<string, any[]>>(new Map())
+const tagsForm = ref({ tags: [] as string[] })
+const availableTags = ref<string[]>([])
+const tagsSearchQuery = ref('')
 
 const canTransition = computed(() => {
   if (!props.issue) return false
@@ -355,10 +471,11 @@ const canTransition = computed(() => {
 
 watch(
   () => props.issue,
-  async (newIssue) => {
+  async newIssue => {
     if (newIssue) {
       await loadComments()
       await loadChangelog()
+      await loadFlows()
     }
   },
   { immediate: true }
@@ -376,6 +493,17 @@ async function loadChangelog() {
     changelog.value = data.changelog || []
   } catch (error) {
     console.error('Failed to load changelog:', error)
+  }
+}
+
+async function loadFlows() {
+  if (!props.issue) return
+  try {
+    const data = await getIssueFlow(props.issue.key)
+    flows.value = data.flows || []
+  } catch (error) {
+    console.error('Failed to load flows:', error)
+    flows.value = []
   }
 }
 
@@ -585,7 +713,7 @@ async function searchUsers(queryString: string, cb: (results: any[]) => void) {
 
   try {
     const data = await getJSON<{ users: any[] }>('/api/users/search', { q: queryString, ps: 10 })
-    const results = (data.users || []).map((user) => ({
+    const results = (data.users || []).map(user => ({
       value: user.login,
       login: user.login,
       name: user.name,
@@ -604,6 +732,77 @@ function handleUserSelect(item: any) {
 
 function formatFieldName(field: string): string {
   return t(`issueDetails.fieldNames.${field}`) || field
+}
+
+async function showRuleDetails(ruleKey: string) {
+  try {
+    const rule = await getRuleDetails(ruleKey)
+    ruleDetails.value = rule
+    showRuleDetailsDialog.value = true
+  } catch (error: any) {
+    ElMessage.error(error.message || '加载规则详情失败')
+  }
+}
+
+async function loadAvailableTags() {
+  if (!props.issue) return
+  try {
+    const tags = await searchIssueTags({
+      project: props.issue.project,
+      ps: 100,
+    })
+    availableTags.value = tags
+    tagsForm.value.tags = props.issue.tags || []
+  } catch (error) {
+    console.error('Failed to load tags:', error)
+    availableTags.value = []
+  }
+}
+
+const filteredAvailableTags = computed(() => {
+  if (!tagsSearchQuery.value) return availableTags.value
+  return availableTags.value.filter(tag =>
+    tag.toLowerCase().includes(tagsSearchQuery.value.toLowerCase())
+  )
+})
+
+async function handleSetTags() {
+  if (!props.issue) return
+  managingTags.value = true
+  try {
+    const updated = await setTags({
+      issue: props.issue.key,
+      tags: tagsForm.value.tags.join(','),
+    })
+    ElMessage.success('标签更新成功')
+    showTagsDialog.value = false
+    emit('issue-updated', updated)
+  } catch (error: any) {
+    ElMessage.error(error.message || '标签更新失败')
+  } finally {
+    managingTags.value = false
+  }
+}
+
+function viewCode() {
+  if (!props.issue || !props.issue.project || !props.issue.component) return
+
+  // 关闭侧边栏
+  visible.value = false
+
+  // 跳转到代码查看页面
+  // 格式: /project/{projectKey}/code?component={componentKey}&line={line}
+  const componentKey = props.issue.component
+  const query: Record<string, string> = { component: componentKey }
+
+  if (props.issue.line) {
+    query.line = String(props.issue.line)
+  }
+
+  router.push({
+    path: `/project/${props.issue.project}/code`,
+    query,
+  })
 }
 </script>
 
@@ -767,5 +966,12 @@ function formatFieldName(field: string): string {
   padding: 10px;
   background: #f5f7fa;
   border-radius: 4px;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
 }
 </style>

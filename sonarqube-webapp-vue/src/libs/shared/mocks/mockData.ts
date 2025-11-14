@@ -1,9 +1,11 @@
 import type { Issue } from '@/libs/commons/types/issues'
 import { IssueStatus, IssueSeverity, IssueType } from '@/libs/commons/types/issues'
 import type { Project } from '@/libs/commons/types/projects'
+import type { ScanTask } from '@/libs/commons/types/tasks'
+import { TaskStatus } from '@/libs/commons/types/tasks'
 
 // 生成日期范围
-function generateDateRange(days: number): string[] {
+export function generateDateRange(days: number): string[] {
   const dates: string[] = []
   const now = new Date()
   for (let i = days - 1; i >= 0; i--) {
@@ -31,20 +33,214 @@ export const mockProjects: Project[] = [
     qualifier: 'TRK',
     visibility: 'private',
     lastAnalysisDate: '2024-01-15T10:30:00Z',
-  },
+    tags: ['java', 'backend', 'spring'],
+    description: '这是一个示例 Java 后端项目，使用 Spring Boot 框架开发。',
+    gitUrl: 'https://github.com/example/my-project.git',
+    appCode: 'MY_PROJECT',
+    taskIds: ['task-1', 'task-2', 'task-3'],
+    branches: ['main', 'develop'],
+    branchTasksCount: { main: 1, develop: 2 },
+  } as any,
   {
     key: 'web-app',
     name: 'Web Application',
     qualifier: 'TRK',
     visibility: 'public',
     lastAnalysisDate: '2024-01-14T15:20:00Z',
-  },
+    tags: ['javascript', 'frontend', 'vue'],
+    description: '这是一个 Vue.js 前端应用项目，包含现代化的 UI 组件。',
+    gitUrl: 'https://github.com/example/web-app.git',
+    appCode: 'WEB_APP',
+    taskIds: ['task-4', 'task-5'],
+    branches: ['main', 'feature/new-ui'],
+    branchTasksCount: { main: 1, 'feature/new-ui': 1 },
+  } as any,
   {
     key: 'api-service',
     name: 'API Service',
     qualifier: 'TRK',
     visibility: 'private',
     lastAnalysisDate: '2024-01-13T09:15:00Z',
+    tags: ['api', 'rest', 'microservice'],
+    description: 'RESTful API 服务，提供微服务架构支持。',
+    gitUrl: 'https://github.com/example/api-service.git',
+    appCode: 'API_SERVICE',
+    taskIds: ['task-6'],
+    branches: ['main'],
+    branchTasksCount: { main: 1 },
+  } as any,
+]
+
+// Mock 扫描任务数据
+export const mockTasks: ScanTask[] = [
+  {
+    id: 'task-1',
+    name: 'main分支扫描-20240115',
+    gitUrl: 'https://github.com/example/my-project.git',
+    appCode: 'MY_PROJECT',
+    branch: 'main',
+    projectKey: 'my-project',
+    status: TaskStatus.Success,
+    createdAt: '2024-01-15T08:00:00Z',
+    startedAt: '2024-01-15T08:00:05Z',
+    finishedAt: '2024-01-15T08:05:30Z',
+    duration: 325,
+    progress: 100,
+    scanResult: {
+      issuesCount: 18,
+      coverage: 92,
+      duplicatedLines: 0,
+      bugs: 2,
+      vulnerabilities: 1,
+      codeSmells: 15,
+    },
+    metadata: {
+      commitHash: 'a1b2c3d4e5f6',
+      commitMessage: 'feat: add new feature',
+      author: 'john.doe',
+      scannerVersion: '1.0.0',
+    },
+  },
+  {
+    id: 'task-2',
+    name: 'develop分支扫描-20240114',
+    gitUrl: 'https://github.com/example/my-project.git',
+    appCode: 'MY_PROJECT',
+    branch: 'develop',
+    projectKey: 'my-project',
+    status: TaskStatus.Success,
+    createdAt: '2024-01-14T10:00:00Z',
+    startedAt: '2024-01-14T10:00:05Z',
+    finishedAt: '2024-01-14T10:06:15Z',
+    duration: 370,
+    progress: 100,
+    scanResult: {
+      issuesCount: 25,
+      coverage: 88,
+      duplicatedLines: 5,
+      bugs: 3,
+      vulnerabilities: 2,
+      codeSmells: 20,
+    },
+    metadata: {
+      commitHash: 'b2c3d4e5f6a7',
+      commitMessage: 'fix: bug fixes',
+      author: 'jane.smith',
+      scannerVersion: '1.0.0',
+    },
+  },
+  {
+    id: 'task-3',
+    name: 'feature/new-feature分支扫描-20240113',
+    gitUrl: 'https://github.com/example/my-project.git',
+    appCode: 'MY_PROJECT',
+    branch: 'feature/new-feature',
+    projectKey: 'my-project',
+    status: TaskStatus.Running,
+    createdAt: '2024-01-13T14:00:00Z',
+    startedAt: '2024-01-13T14:00:05Z',
+    progress: 65,
+    scanResult: {
+      issuesCount: 0,
+      coverage: 0,
+      duplicatedLines: 0,
+      bugs: 0,
+      vulnerabilities: 0,
+      codeSmells: 0,
+    },
+    metadata: {
+      commitHash: 'c3d4e5f6a7b8',
+      commitMessage: 'feat: new feature implementation',
+      author: 'bob.wilson',
+      scannerVersion: '1.0.0',
+    },
+  },
+  {
+    id: 'task-4',
+    name: 'main分支扫描-20240114',
+    gitUrl: 'https://github.com/example/web-app.git',
+    appCode: 'WEB_APP',
+    branch: 'main',
+    projectKey: 'web-app',
+    status: TaskStatus.Success,
+    createdAt: '2024-01-14T09:00:00Z',
+    startedAt: '2024-01-14T09:00:05Z',
+    finishedAt: '2024-01-14T09:04:20Z',
+    duration: 255,
+    progress: 100,
+    scanResult: {
+      issuesCount: 12,
+      coverage: 95,
+      duplicatedLines: 2,
+      bugs: 1,
+      vulnerabilities: 0,
+      codeSmells: 11,
+    },
+    metadata: {
+      commitHash: 'd4e5f6a7b8c9',
+      commitMessage: 'refactor: improve UI components',
+      author: 'alice.brown',
+      scannerVersion: '1.0.0',
+    },
+  },
+  {
+    id: 'task-5',
+    name: 'develop分支扫描-20240113',
+    gitUrl: 'https://github.com/example/web-app.git',
+    appCode: 'WEB_APP',
+    branch: 'develop',
+    projectKey: 'web-app',
+    status: TaskStatus.Failed,
+    createdAt: '2024-01-13T11:00:00Z',
+    startedAt: '2024-01-13T11:00:05Z',
+    finishedAt: '2024-01-13T11:02:10Z',
+    duration: 125,
+    progress: 45,
+    errorMessage: '扫描过程中发生错误：无法连接到Git仓库',
+    metadata: {
+      commitHash: 'e5f6a7b8c9d0',
+      commitMessage: 'chore: update dependencies',
+      author: 'john.doe',
+      scannerVersion: '1.0.0',
+    },
+  },
+  {
+    id: 'task-6',
+    name: 'main分支扫描-20240113',
+    gitUrl: 'https://github.com/example/api-service.git',
+    appCode: 'API_SERVICE',
+    branch: 'main',
+    projectKey: 'api-service',
+    status: TaskStatus.Success,
+    createdAt: '2024-01-13T08:00:00Z',
+    startedAt: '2024-01-13T08:00:05Z',
+    finishedAt: '2024-01-13T08:07:45Z',
+    duration: 460,
+    progress: 100,
+    scanResult: {
+      issuesCount: 8,
+      coverage: 85,
+      duplicatedLines: 3,
+      bugs: 0,
+      vulnerabilities: 1,
+      codeSmells: 7,
+    },
+    metadata: {
+      commitHash: 'f6a7b8c9d0e1',
+      commitMessage: 'docs: update API documentation',
+      author: 'jane.smith',
+      scannerVersion: '1.0.0',
+    },
+  },
+  {
+    id: 'task-7',
+    name: '未关联项目的扫描任务',
+    gitUrl: 'https://github.com/example/new-repo.git',
+    appCode: 'NEW_REPO',
+    branch: 'main',
+    status: TaskStatus.Pending,
+    createdAt: '2024-01-16T10:00:00Z',
+    progress: 0,
   },
 ]
 
@@ -62,6 +258,7 @@ export const mockIssues: Issue[] = [
     creationDate: '2024-01-10T08:30:00Z',
     type: IssueType.CodeSmell,
     assignee: 'john.doe',
+    tags: ['complexity', 'maintainability'],
     actions: ['assign', 'comment', 'set_severity', 'set_type', 'do_transition'],
     comments: [
       {
@@ -75,7 +272,7 @@ export const mockIssues: Issue[] = [
       {
         key: 'comment-2',
         login: 'jane.smith',
-        htmlText: '<p>I agree, let\'s break it down into smaller methods.</p>',
+        htmlText: "<p>I agree, let's break it down into smaller methods.</p>",
         markdown: "I agree, let's break it down into smaller methods.",
         createdAt: '2024-01-11T14:30:00Z',
         updatable: false,
@@ -94,6 +291,7 @@ export const mockIssues: Issue[] = [
     creationDate: '2024-01-09T12:15:00Z',
     type: IssueType.Bug,
     assignee: 'jane.smith',
+    tags: ['bug', 'null-safety'],
     actions: ['assign', 'comment', 'set_severity', 'set_type', 'do_transition'],
     comments: [],
   },
@@ -123,6 +321,7 @@ export const mockIssues: Issue[] = [
     creationDate: '2024-01-12T11:20:00Z',
     type: IssueType.Vulnerability,
     assignee: 'bob.wilson',
+    tags: ['security', 'xss', 'owasp'],
     actions: ['assign', 'comment', 'set_severity', 'set_type', 'do_transition'],
     comments: [
       {
@@ -139,7 +338,7 @@ export const mockIssues: Issue[] = [
 
 // Mock 问题变更历史
 export const mockChangelog: Record<string, any[]> = {
-  'AX123456789': [
+  AX123456789: [
     {
       creationDate: '2024-01-11T10:00:00Z',
       user: 'john.doe',
@@ -153,7 +352,7 @@ export const mockChangelog: Record<string, any[]> = {
       diffs: [{ field: 'assignee', oldValue: '', newValue: 'john.doe' }],
     },
   ],
-  'AX987654321': [
+  AX987654321: [
     {
       creationDate: '2024-01-09T13:00:00Z',
       user: 'jane.smith',
@@ -167,7 +366,7 @@ export const mockChangelog: Record<string, any[]> = {
       diffs: [{ field: 'assignee', oldValue: '', newValue: 'jane.smith' }],
     },
   ],
-  'AX111222333': [
+  AX111222333: [
     {
       creationDate: '2024-01-08T17:00:00Z',
       user: 'john.doe',
@@ -178,7 +377,7 @@ export const mockChangelog: Record<string, any[]> = {
       ],
     },
   ],
-  'AX444555666': [
+  AX444555666: [
     {
       creationDate: '2024-01-12T13:00:00Z',
       user: 'bob.wilson',
@@ -249,6 +448,30 @@ export const mockMeasures = {
   },
 }
 
+// Mock 历史数据生成函数（支持动态天数）
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function generateHistoryData(projectKey: string, metric: string, days: number): any[] {
+  const dates = generateDateRange(days)
+  const baseValues: Record<string, Record<string, number>> = {
+    'my-project': { issues: 30, coverage: 80, duplicated_lines_density: 3.2, bugs: 3 },
+    'web-app': { issues: 25, coverage: 85, duplicated_lines_density: 1.5, bugs: 2 },
+    'api-service': { issues: 20, coverage: 75, duplicated_lines_density: 5.8, bugs: 1 },
+  }
+  const baseValue = baseValues[projectKey]?.[metric] || 0
+
+  return dates.map((date, index) => {
+    let value = baseValue
+    if (metric === 'issues' || metric === 'bugs') {
+      value = Math.max(0, baseValue - index + Math.floor(Math.random() * 5))
+    } else if (metric === 'coverage') {
+      value = Math.min(100, baseValue + index * 0.2 + Math.random() * 2)
+    } else if (metric === 'duplicated_lines_density') {
+      value = Math.max(0, baseValue - index * 0.05 + Math.random() * 0.5)
+    }
+    return { date, value: String(value) }
+  })
+}
+
 // Mock 历史数据
 const dates = generateDateRange(30)
 export const mockHistoryData: Record<string, Record<string, any[]>> = {
@@ -261,6 +484,14 @@ export const mockHistoryData: Record<string, Record<string, any[]>> = {
       date,
       value: String(80 + index * 0.2 + Math.random() * 2),
     })),
+    duplicated_lines_density: dates.map((date, index) => ({
+      date,
+      value: String(Math.max(0, 3.2 - index * 0.05 + Math.random() * 0.5)),
+    })),
+    bugs: dates.map((date, index) => ({
+      date,
+      value: String(Math.max(0, 3 - index + Math.floor(Math.random() * 3))),
+    })),
   },
   'web-app': {
     issues: dates.map((date, index) => ({
@@ -270,6 +501,14 @@ export const mockHistoryData: Record<string, Record<string, any[]>> = {
     coverage: dates.map((date, index) => ({
       date,
       value: String(85 + index * 0.25 + Math.random() * 2),
+    })),
+    duplicated_lines_density: dates.map((date, index) => ({
+      date,
+      value: String(Math.max(0, 1.5 - index * 0.03 + Math.random() * 0.3)),
+    })),
+    bugs: dates.map((date, index) => ({
+      date,
+      value: String(Math.max(0, 2 - index + Math.floor(Math.random() * 2))),
     })),
   },
   'api-service': {
@@ -281,6 +520,14 @@ export const mockHistoryData: Record<string, Record<string, any[]>> = {
       date,
       value: String(75 + index * 0.15 + Math.random() * 2),
     })),
+    duplicated_lines_density: dates.map((date, index) => ({
+      date,
+      value: String(Math.max(0, 5.8 - index * 0.08 + Math.random() * 0.6)),
+    })),
+    bugs: dates.map((date, index) => ({
+      date,
+      value: String(Math.max(0, 1 - index + Math.floor(Math.random() * 2))),
+    })),
   },
 }
 
@@ -290,30 +537,84 @@ export const mockQualityGates: Record<string, any> = {
     status: 'OK',
     name: 'Sonar way',
     conditions: [
-      { metric: 'coverage', status: 'OK', actualValue: '85.5%', operator: 'GT', errorThreshold: '80%' },
-      { metric: 'duplicated_lines_density', status: 'OK', actualValue: '3.2%', operator: 'LT', errorThreshold: '5%' },
+      {
+        metric: 'coverage',
+        status: 'OK',
+        actualValue: '85.5%',
+        operator: 'GT',
+        errorThreshold: '80%',
+      },
+      {
+        metric: 'duplicated_lines_density',
+        status: 'OK',
+        actualValue: '3.2%',
+        operator: 'LT',
+        errorThreshold: '5%',
+      },
       { metric: 'bugs', status: 'OK', actualValue: '3', operator: 'LT', errorThreshold: '5' },
-      { metric: 'vulnerabilities', status: 'OK', actualValue: '2', operator: 'LT', errorThreshold: '3' },
+      {
+        metric: 'vulnerabilities',
+        status: 'OK',
+        actualValue: '2',
+        operator: 'LT',
+        errorThreshold: '3',
+      },
     ],
   },
   'web-app': {
     status: 'OK',
     name: 'Sonar way',
     conditions: [
-      { metric: 'coverage', status: 'OK', actualValue: '92.3%', operator: 'GT', errorThreshold: '80%' },
-      { metric: 'duplicated_lines_density', status: 'OK', actualValue: '1.5%', operator: 'LT', errorThreshold: '5%' },
+      {
+        metric: 'coverage',
+        status: 'OK',
+        actualValue: '92.3%',
+        operator: 'GT',
+        errorThreshold: '80%',
+      },
+      {
+        metric: 'duplicated_lines_density',
+        status: 'OK',
+        actualValue: '1.5%',
+        operator: 'LT',
+        errorThreshold: '5%',
+      },
       { metric: 'bugs', status: 'OK', actualValue: '2', operator: 'LT', errorThreshold: '5' },
-      { metric: 'vulnerabilities', status: 'OK', actualValue: '1', operator: 'LT', errorThreshold: '3' },
+      {
+        metric: 'vulnerabilities',
+        status: 'OK',
+        actualValue: '1',
+        operator: 'LT',
+        errorThreshold: '3',
+      },
     ],
   },
   'api-service': {
     status: 'ERROR',
     name: 'Sonar way',
     conditions: [
-      { metric: 'coverage', status: 'ERROR', actualValue: '78.9%', operator: 'GT', errorThreshold: '80%' },
-      { metric: 'duplicated_lines_density', status: 'OK', actualValue: '5.8%', operator: 'LT', errorThreshold: '6%' },
+      {
+        metric: 'coverage',
+        status: 'ERROR',
+        actualValue: '78.9%',
+        operator: 'GT',
+        errorThreshold: '80%',
+      },
+      {
+        metric: 'duplicated_lines_density',
+        status: 'OK',
+        actualValue: '5.8%',
+        operator: 'LT',
+        errorThreshold: '6%',
+      },
       { metric: 'bugs', status: 'OK', actualValue: '1', operator: 'LT', errorThreshold: '5' },
-      { metric: 'vulnerabilities', status: 'OK', actualValue: '1', operator: 'LT', errorThreshold: '3' },
+      {
+        metric: 'vulnerabilities',
+        status: 'OK',
+        actualValue: '1',
+        operator: 'LT',
+        errorThreshold: '3',
+      },
     ],
   },
 }
@@ -337,12 +638,8 @@ export const mockActivities: Record<string, any[]> = {
 
 // Mock ALM 设置
 export const mockAlmSettings: Record<string, any[]> = {
-  github: [
-    { key: 'github-1', name: 'GitHub Enterprise', url: 'https://github.enterprise.com' },
-  ],
-  gitlab: [
-    { key: 'gitlab-1', name: 'GitLab Instance', url: 'https://gitlab.example.com' },
-  ],
+  github: [{ key: 'github-1', name: 'GitHub Enterprise', url: 'https://github.enterprise.com' }],
+  gitlab: [{ key: 'gitlab-1', name: 'GitLab Instance', url: 'https://gitlab.example.com' }],
   bitbucket: [],
   azure: [],
 }
@@ -503,7 +800,10 @@ export const mockSources: Record<string, any> = {
       { line: 12, code: '' },
       { line: 13, code: '    public void addItem(String item) {' },
       { line: 14, code: '        if (item == null || item.isEmpty()) {' },
-      { line: 15, code: '            throw new IllegalArgumentException("Item cannot be null or empty");' },
+      {
+        line: 15,
+        code: '            throw new IllegalArgumentException("Item cannot be null or empty");',
+      },
       { line: 16, code: '        }' },
       { line: 17, code: '        items.add(item);' },
       { line: 18, code: '    }' },
@@ -544,27 +844,37 @@ export const mockSources: Record<string, any> = {
       { line: 13, code: '    }' },
       { line: 14, code: '}' },
     ],
-    issues: [
-      { line: 123, key: 'AX987654321', severity: 'CRITICAL' },
-    ],
+    issues: [{ line: 123, key: 'AX987654321', severity: 'CRITICAL' }],
   },
 }
 
 // Mock 问题流数据
 export const mockIssueFlows: Record<string, any[]> = {
-  'AX123456789': [
+  AX123456789: [
     {
       locations: [
-        { component: 'my-project:src/main/java/com/example/Service.java', textRange: { startLine: 25, endLine: 25 } },
-        { component: 'my-project:src/main/java/com/example/Service.java', textRange: { startLine: 27, endLine: 27 } },
-        { component: 'my-project:src/main/java/com/example/Service.java', textRange: { startLine: 30, endLine: 30 } },
+        {
+          component: 'my-project:src/main/java/com/example/Service.java',
+          textRange: { startLine: 25, endLine: 25 },
+        },
+        {
+          component: 'my-project:src/main/java/com/example/Service.java',
+          textRange: { startLine: 27, endLine: 27 },
+        },
+        {
+          component: 'my-project:src/main/java/com/example/Service.java',
+          textRange: { startLine: 30, endLine: 30 },
+        },
       ],
     },
   ],
-  'AX987654321': [
+  AX987654321: [
     {
       locations: [
-        { component: 'my-project:src/main/java/com/example/Controller.java', textRange: { startLine: 123, endLine: 123 } },
+        {
+          component: 'my-project:src/main/java/com/example/Controller.java',
+          textRange: { startLine: 123, endLine: 123 },
+        },
       ],
     },
   ],
@@ -578,7 +888,8 @@ export const mockRuleDetails: Record<string, any> = {
     severity: 'MAJOR',
     type: 'CODE_SMELL',
     htmlDescription: '<p>Complex expressions are hard to read and understand.</p>',
-    htmlNote: '<p>Consider breaking down complex expressions into smaller, more manageable parts.</p>',
+    htmlNote:
+      '<p>Consider breaking down complex expressions into smaller, more manageable parts.</p>',
     tags: ['complexity', 'brain-overload'],
   },
   'java:S2259': {

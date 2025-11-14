@@ -1,141 +1,129 @@
 <template>
   <div class="projects">
-    <el-container>
-      <el-header>
-        <div class="header">
-          <h2>{{ isFavorite ? '收藏的项目' : '项目' }}</h2>
-          <div class="header-actions">
-            <el-input
-              v-model="searchQuery"
-              placeholder="搜索项目..."
-              style="width: 300px; margin-right: 10px"
+    <div class="page-header">
+      <div class="header">
+        <h2>{{ isFavorite ? '收藏的项目' : '项目' }}</h2>
+        <div class="header-actions">
+          <el-input
+            v-model="searchQuery"
+            placeholder="搜索项目..."
+            style="width: 300px; margin-right: 10px"
+            clearable
+            @input="handleSearch"
+          >
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-input>
+          <el-button type="primary" @click="goToCreate">
+            <el-icon><Plus /></el-icon>
+            创建项目
+          </el-button>
+        </div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="filters">
+        <el-form :inline="true" :model="filters">
+          <el-form-item label="类型">
+            <el-select v-model="filters.qualifiers" placeholder="请选择" clearable multiple>
+              <el-option label="项目" value="TRK" />
+              <el-option label="应用" value="APP" />
+              <el-option label="组合" value="VW" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="标签">
+            <el-select
+              v-model="filters.tags"
+              placeholder="请选择标签"
               clearable
-              @input="handleSearch"
+              multiple
+              filterable
+              allow-create
             >
-              <template #prefix>
-                <el-icon><Search /></el-icon>
-              </template>
-            </el-input>
-            <el-button type="primary" @click="goToCreate">
-              <el-icon><Plus /></el-icon>
-              创建项目
+              <el-option v-for="tag in availableTags" :key="tag" :label="tag" :value="tag" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="排序">
+            <el-select v-model="filters.sort" placeholder="请选择" clearable>
+              <el-option label="名称" value="name" />
+              <el-option label="分析日期" value="analysisDate" />
+              <el-option label="创建日期" value="creationDate" />
+            </el-select>
+          </el-form-item>
+          <el-form-item>
+            <el-button @click="resetFilters">重置</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+      <el-table :data="projects" v-loading="loading" style="width: 100%">
+        <el-table-column type="expand">
+          <template #default="{ row }">
+            <div class="project-details">
+              <p><strong>描述:</strong> {{ row.description || '无' }}</p>
+              <p><strong>最后分析:</strong> {{ formatDate(row.lastAnalysisDate) }}</p>
+              <p v-if="row.tags && row.tags.length > 0">
+                <strong>标签:</strong>
+                <el-tag v-for="tag in row.tags" :key="tag" size="small" style="margin-left: 5px">
+                  {{ tag }}
+                </el-tag>
+              </p>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="name" label="项目名称" min-width="200">
+          <template #default="{ row }">
+            <el-link type="primary" @click="viewProject(row.key)">{{ row.name }}</el-link>
+          </template>
+        </el-table-column>
+        <el-table-column prop="key" label="项目 Key" min-width="200" />
+        <el-table-column prop="qualifier" label="类型" width="100">
+          <template #default="{ row }">
+            <el-tag>{{ getQualifierLabel(row.qualifier) }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="visibility" label="可见性" width="100">
+          <template #default="{ row }">
+            <el-tag :type="row.visibility === 'private' ? 'info' : 'success'">
+              {{ row.visibility === 'private' ? '私有' : '公开' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="lastAnalysisDate" label="最后分析" width="180">
+          <template #default="{ row }">
+            {{ formatDate(row.lastAnalysisDate) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="250" fixed="right">
+          <template #default="{ row }">
+            <el-button link type="primary" @click="viewProject(row.key)">查看</el-button>
+            <el-button link type="primary" @click="toggleFavorite(row)">
+              {{ row.isFavorite ? '取消收藏' : '收藏' }}
             </el-button>
-          </div>
-        </div>
-      </el-header>
-      <el-main>
-        <div class="filters">
-          <el-form :inline="true" :model="filters">
-            <el-form-item label="类型">
-              <el-select v-model="filters.qualifiers" placeholder="请选择" clearable multiple>
-                <el-option label="项目" value="TRK" />
-                <el-option label="应用" value="APP" />
-                <el-option label="组合" value="VW" />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="标签">
-              <el-select
-                v-model="filters.tags"
-                placeholder="请选择标签"
-                clearable
-                multiple
-                filterable
-                allow-create
-              >
-                <el-option
-                  v-for="tag in availableTags"
-                  :key="tag"
-                  :label="tag"
-                  :value="tag"
-                />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="排序">
-              <el-select v-model="filters.sort" placeholder="请选择" clearable>
-                <el-option label="名称" value="name" />
-                <el-option label="分析日期" value="analysisDate" />
-                <el-option label="创建日期" value="creationDate" />
-              </el-select>
-            </el-form-item>
-            <el-form-item>
-              <el-button @click="resetFilters">重置</el-button>
-            </el-form-item>
-          </el-form>
-        </div>
-        <el-table :data="projects" v-loading="loading" style="width: 100%">
-          <el-table-column type="expand">
-            <template #default="{ row }">
-              <div class="project-details">
-                <p><strong>描述:</strong> {{ row.description || '无' }}</p>
-                <p><strong>最后分析:</strong> {{ formatDate(row.lastAnalysisDate) }}</p>
-                <p v-if="row.tags && row.tags.length > 0">
-                  <strong>标签:</strong>
-                  <el-tag
-                    v-for="tag in row.tags"
-                    :key="tag"
-                    size="small"
-                    style="margin-left: 5px"
-                  >
-                    {{ tag }}
-                  </el-tag>
-                </p>
-              </div>
-            </template>
-          </el-table-column>
-          <el-table-column prop="name" label="项目名称" min-width="200">
-            <template #default="{ row }">
-              <el-link type="primary" @click="viewProject(row.key)">{{ row.name }}</el-link>
-            </template>
-          </el-table-column>
-          <el-table-column prop="key" label="项目 Key" min-width="200" />
-          <el-table-column prop="qualifier" label="类型" width="100">
-            <template #default="{ row }">
-              <el-tag>{{ getQualifierLabel(row.qualifier) }}</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="visibility" label="可见性" width="100">
-            <template #default="{ row }">
-              <el-tag :type="row.visibility === 'private' ? 'info' : 'success'">
-                {{ row.visibility === 'private' ? '私有' : '公开' }}
-              </el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column prop="lastAnalysisDate" label="最后分析" width="180">
-            <template #default="{ row }">
-              {{ formatDate(row.lastAnalysisDate) }}
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" width="250" fixed="right">
-            <template #default="{ row }">
-              <el-button link type="primary" @click="viewProject(row.key)">查看</el-button>
-              <el-button link type="primary" @click="toggleFavorite(row)">
-                {{ row.isFavorite ? '取消收藏' : '收藏' }}
+            <el-dropdown @command="(cmd: string) => handleCommand(cmd, row)">
+              <el-button link type="primary">
+                更多 <el-icon><ArrowDown /></el-icon>
               </el-button>
-              <el-dropdown @command="(cmd) => handleCommand(cmd, row)">
-                <el-button link type="primary">
-                  更多 <el-icon><ArrowDown /></el-icon>
-                </el-button>
-                <template #dropdown>
-                  <el-dropdown-menu>
-                    <el-dropdown-item command="settings">设置</el-dropdown-item>
-                    <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
-                  </el-dropdown-menu>
-                </template>
-              </el-dropdown>
-            </template>
-          </el-table-column>
-        </el-table>
-        <el-pagination
-          v-model:current-page="pagination.pageIndex"
-          v-model:page-size="pagination.pageSize"
-          :total="pagination.total"
-          :page-sizes="[10, 20, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handlePageChange"
-        />
-      </el-main>
-    </el-container>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="settings">设置</el-dropdown-item>
+                  <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        v-model:current-page="pagination.pageIndex"
+        v-model:page-size="pagination.pageSize"
+        :total="pagination.total"
+        :page-sizes="[10, 20, 50, 100]"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handlePageChange"
+      />
+    </div>
   </div>
 </template>
 
@@ -145,7 +133,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Plus, ArrowDown } from '@element-plus/icons-vue'
 import { searchProjects, deleteProject, getProjectTags } from '@/libs/commons/api/projects'
-import { getJSON, postJSON } from '@/libs/shared/utils/request'
+import { postJSON } from '@/libs/shared/utils/request'
 import type { Project, ProjectsQuery } from '@/libs/commons/types/projects'
 import { format } from 'date-fns'
 
